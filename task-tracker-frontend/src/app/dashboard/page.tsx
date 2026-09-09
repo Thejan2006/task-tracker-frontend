@@ -13,7 +13,7 @@ interface Task {
   title: string;
   description: string;
   is_completed: boolean;
-  category_id?: number;
+  category_id?: number | null;
 }
 
 export default function DashboardPage() {
@@ -38,9 +38,11 @@ export default function DashboardPage() {
   const [editDescription, setEditDescription] = useState('');
   const [editCategoryId, setEditCategoryId] = useState<string>('');
   const [isUpdating, setIsUpdating] = useState(false);
+
   // New Category Modal states
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
+
   const router = useRouter();
 
   useEffect(() => {
@@ -151,6 +153,36 @@ export default function DashboardPage() {
       setError(err.message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Create new category
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCategoryName.trim()) return;
+
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const response = await fetch('http://localhost:8000/categories/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name: newCategoryName }),
+      });
+
+      if (response.ok) {
+        const createdCategory = await response.json();
+        setCategories((prev) => [...prev, createdCategory]);
+        setCategoryId(String(createdCategory.id)); // Auto-select created category in form
+        setNewCategoryName('');
+        setShowCategoryModal(false);
+      }
+    } catch (err) {
+      console.error('Failed to create category:', err);
     }
   };
 
@@ -265,11 +297,11 @@ export default function DashboardPage() {
     router.push('/login');
   };
 
-  // Filter Tasks by Selected Category
+  // Filter Tasks by Selected Category (Safe String Comparison)
   const filteredTasks = tasks.filter((task) => {
     if (selectedCategoryFilter === 'all') return true;
     if (selectedCategoryFilter === 'none') return !task.category_id;
-    return task.category_id === Number(selectedCategoryFilter);
+    return String(task.category_id) === String(selectedCategoryFilter);
   });
 
   if (!isAuthenticated) {
@@ -279,35 +311,7 @@ export default function DashboardPage() {
       </div>
     );
   }
-  // Handle Create Category
-  const handleCreateCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCategoryName.trim()) return;
 
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    try {
-      const response = await fetch('http://localhost:8000/categories/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name: newCategoryName }),
-      });
-
-      if (response.ok) {
-        const createdCategory = await response.json();
-        setCategories((prev) => [...prev, createdCategory]);
-        setCategoryId(String(createdCategory.id)); // Auto-select the newly created category
-        setNewCategoryName('');
-        setShowCategoryModal(false);
-      }
-    } catch (err) {
-      console.error('Failed to create category:', err);
-    }
-  };
   return (
     <main className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
@@ -321,6 +325,7 @@ export default function DashboardPage() {
           </button>
         </div>
       </header>
+
       {/* Create Category Modal */}
       {showCategoryModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
@@ -361,6 +366,7 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
         {error && (
           <div className="bg-red-100 p-3 rounded text-red-700">
@@ -387,7 +393,7 @@ export default function DashboardPage() {
                 className="w-full rounded-md border border-gray-300 p-2 text-gray-900 focus:border-blue-500 focus:outline-none"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Description
@@ -404,9 +410,16 @@ export default function DashboardPage() {
 
             {/* Category Dropdown */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category
-              </label>
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-sm font-medium text-gray-700">Category</label>
+                <button
+                  type="button"
+                  onClick={() => setShowCategoryModal(true)}
+                  className="text-xs text-blue-600 hover:underline font-medium"
+                >
+                  + Add New Category
+                </button>
+              </div>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
@@ -431,31 +444,7 @@ export default function DashboardPage() {
             </button>
           </form>
         </div>
-         <div>
-          <div className="flex justify-between items-center mb-1">
-            <label className="block text-sm font-medium text-gray-700">Category</label>
-            <button
-              type="button"
-              onClick={() => setShowCategoryModal(true)}
-              className="text-xs text-blue-600 hover:underline font-medium"
-            >
-              + Add New Category
-            </button>
-          </div>
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            disabled={isSubmitting}
-            className="w-full rounded-md border border-gray-300 p-2 text-gray-900 focus:border-blue-500 focus:outline-none"
-          >
-            <option value="">No Category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        </div>
+
         {/* Tasks List */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 space-y-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-4">
@@ -487,7 +476,7 @@ export default function DashboardPage() {
           ) : (
             <ul className="space-y-3">
               {filteredTasks.map((task) => {
-                const categoryObj = categories.find((c) => c.id === task.category_id);
+                const categoryObj = categories.find((c) => String(c.id) === String(task.category_id));
 
                 return (
                   <li
