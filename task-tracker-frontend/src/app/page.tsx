@@ -32,7 +32,10 @@ export default function Home() {
           <span className="eyebrow">The operating system for momentum</span>
           <h1>Make progress <span>feel effortless.</span></h1>
           <p>Taskflow gives ambitious teams a beautiful, focused space to plan clearly, collaborate deeply, and ship their best work.</p>
-          <div className="hero-actions"><Link href="/login" className="button button-primary">Start for free <span>→</span></Link><Link href="/about" className="text-link">See how it works <span>↗</span></Link></div>
+          <div className="hero-actions">
+            <Link href="/users/create" className="button button-primary">Start for free <span>→</span></Link>
+            <Link href="/login" className="text-link">Sign in <span>↗</span></Link>
+          </div>
           <div className="social-proof"><div className="avatar-stack"><i>A</i><i>M</i><i>J</i><i>+</i></div><span>Trusted by 2,000+ focused teams</span></div>
         </div>
         <motion.div className="hero-visual" initial={{ opacity: 0, scale: .95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .7 }}>
@@ -41,7 +44,7 @@ export default function Home() {
         </motion.div>
       </section>
       <section className="feature-section"><Reveal><span className="eyebrow">Less managing. More making.</span><h2>Everything your team needs<br /><span>to move as one.</span></h2></Reveal><div className="feature-grid">{features.map(([number, title, text]) => <Reveal key={number} className="feature-card"><span className="feature-number">{number}</span><h3>{title}</h3><p>{text}</p><span className="feature-arrow">↗</span></Reveal>)}</div></section>
-      <section className="cta-section"><Reveal><h2>Ready to find your flow?</h2><p>Join thousands of teams building their next big thing with less friction.</p><Link href="/login" className="button button-primary">Get started free <span>→</span></Link></Reveal></section>
+      <section className="cta-section"><Reveal><h2>Ready to find your flow?</h2><p>Join thousands of teams building their next big thing with less friction.</p><Link href="/users/create" className="button button-primary">Get started free <span>→</span></Link></Reveal></section>
       <footer className="site-footer"><div><Link href="/" className="brand"><span className="brand-mark">T</span><span>Taskflow</span></Link><p>Make space for the work that matters.</p></div><span>© 2026 Taskflow. Built for focused teams.</span></footer>
     </div>
   );
