@@ -1,0 +1,5 @@
+import { LandingLayout, Reveal } from '@/components/LandingLayout';
+
+export default function AboutPage() {
+  return <LandingLayout eyebrow="Our north star" title={<>Work better, <span>together.</span></>} description="Taskflow is designed for teams who care about doing meaningful work, not just managing it."><section className="content-section"><Reveal className="split-copy"><div><h2>Clarity is a competitive advantage.</h2></div><div><p>We believe the best products make complex things feel simple. Taskflow turns scattered tasks and status updates into a shared rhythm your team can trust.</p><p>From your first idea to the final detail, every part of the experience is designed to keep people aligned and in control.</p></div></Reveal><Reveal className="values-grid">{['Clarity over clutter', 'Progress over pressure', 'People over process'].map((value, index) => <div className="glass-card" key={value}><span>0{index + 1}</span><h3>{value}</h3><p>Purposeful tools that respect your team&apos;s time and attention.</p></div>)}</Reveal></section></LandingLayout>;
+}

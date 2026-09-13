@@ -1,0 +1,7 @@
+import { LandingLayout, Reveal } from '@/components/LandingLayout';
+
+const reviews = [{ quote: 'Taskflow gave our team a shared language for progress. We spend less time asking for updates and more time shipping.', name: 'Maya Chen', role: 'Head of Product, Northstar' }, { quote: 'It is rare to find a tool that feels powerful and calm at the same time. Our planning meetings are half as long.', name: 'Jon Bell', role: 'Founder, Linear Labs' }, { quote: 'The visual clarity changed how we work. Everyone knows what matters today and why.', name: 'Ari Santos', role: 'Design Director, Commonplace' }];
+
+export default function ReviewsPage() {
+  return <LandingLayout eyebrow="Loved by focused teams" title={<>Don&apos;t take our word <span>for it.</span></>} description="A little proof from the people turning ambitious plans into meaningful progress."><section className="reviews-grid">{reviews.map((review) => <Reveal key={review.name} className="review-card"><div className="stars">★★★★★</div><blockquote>“{review.quote}”</blockquote><div className="review-author"><span>{review.name.charAt(0)}</span><div><b>{review.name}</b><small>{review.role}</small></div></div></Reveal>)}</section><section className="stats-row"><div><strong>2,000+</strong><span>teams in flow</span></div><div><strong>98%</strong><span>would recommend</span></div><div><strong>4.9/5</strong><span>average rating</span></div></section></LandingLayout>;
+}
