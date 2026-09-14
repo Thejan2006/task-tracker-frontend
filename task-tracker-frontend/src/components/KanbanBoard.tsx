@@ -32,21 +32,21 @@ function getStatus(task: BoardTask): TaskStatus {
 }
 
 function SortableCard({ task }: { task: BoardTask }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useSortable({ id: task.id });
   return (
     <motion.article
       ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
+      animate={{ transform: CSS.Transform.toString(transform) }}
       {...attributes}
       {...listeners}
       layout
-      className={`kanban-card ${isDragging ? 'is-dragging' : ''}`}
+      className={`mb-[9px] cursor-grab touch-none rounded-[10px] border border-white/10 bg-[#15152a] p-3.5 shadow-[0_8px_20px_rgba(0,0,0,0.1)] transition-transform active:cursor-grabbing ${isDragging ? 'opacity-50' : ''}`}
       whileHover={{ y: -3 }}
     >
-      <div className="kanban-card-top"><span className={`priority-dot priority-${String(task.priority || '').toLowerCase()}`} />{task.priority && <small>{task.priority}</small>}</div>
-      <h4>{task.title}</h4>
-      {task.description && <p>{task.description}</p>}
-      {task.due_date && <time>Due {new Date(task.due_date).toLocaleDateString()}</time>}
+      <div className="flex min-h-2.5 items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${task.priority === 'High' ? 'bg-red-500' : task.priority === 'Medium' ? 'bg-amber-500' : task.priority === 'Low' ? 'bg-green-500' : 'bg-[#9898ad]'}`} />{task.priority && <small className="text-[0.6rem] text-[#9898ad]">{task.priority}</small>}</div>
+      <h4 className="my-2.5 mb-[5px] text-[0.8rem] leading-[1.3]">{task.title}</h4>
+      {task.description && <p className="m-0 text-[0.67rem] leading-[1.4] text-[#9898ad]">{task.description}</p>}
+      {task.due_date && <time className="mt-2.5 block text-[0.6rem] text-[#9898ad]">Due {new Date(task.due_date).toLocaleDateString()}</time>}
     </motion.article>
   );
 }
@@ -54,10 +54,10 @@ function SortableCard({ task }: { task: BoardTask }) {
 function Column({ id, label, color, tasks }: { id: TaskStatus; label: string; color: string; tasks: BoardTask[] }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   return (
-    <section ref={setNodeRef} className={`kanban-column ${isOver ? 'is-over' : ''}`}>
-      <header><span className="column-title"><i style={{ backgroundColor: color }} />{label}</span><b>{tasks.length}</b></header>
+    <section ref={setNodeRef} className={`min-w-0 rounded-xl border transition-colors ${isOver ? 'border-[#8b5cf6] bg-[rgba(139,92,246,0.16)]' : 'border-transparent bg-black/10'}`}>
+      <header className="flex justify-between px-3.5 pb-2.5 pt-[15px]"><span className="flex items-center gap-[7px] text-[0.76rem] font-bold"><i className={`h-[7px] w-[7px] rounded-full ${id === 'todo' ? 'bg-slate-400' : id === 'in_progress' ? 'bg-violet-500' : id === 'review' ? 'bg-amber-500' : 'bg-green-500'}`} />{label}</span><b className="grid h-[21px] min-w-[21px] place-items-center rounded-full bg-white/10 text-[0.65rem] text-[#9898ad]">{tasks.length}</b></header>
       <SortableContext items={tasks.map((task) => task.id)} strategy={verticalListSortingStrategy}>
-        <div className="kanban-column-body">{tasks.map((task) => <SortableCard key={task.id} task={task} />)}{tasks.length === 0 && <span className="kanban-empty">Drop tasks here</span>}</div>
+        <div className="min-h-[160px] px-[9px] pb-2.5 pt-[5px] max-[480px]:min-h-[110px]">{tasks.map((task) => <SortableCard key={task.id} task={task} />)}{tasks.length === 0 && <span className="grid min-h-[100px] place-items-center rounded-lg border border-dashed border-white/10 text-[0.7rem] text-[#9898ad]">Drop tasks here</span>}</div>
       </SortableContext>
     </section>
   );
@@ -86,5 +86,5 @@ export function KanbanBoard({ tasks, onReorder, onPersist }: { tasks: BoardTask[
   };
 
   const activeTask = activeId ? tasks.find((task) => task.id === activeId) : null;
-  return <div className="kanban-wrap"><DndContext sensors={sensors} onDragStart={({ active }) => setActiveId(Number(active.id))} onDragCancel={() => setActiveId(null)} onDragEnd={handleDragEnd}><div className="kanban-board">{columns.map((column) => <Column key={column.id} {...column} tasks={grouped[column.id]} />)}</div><DragOverlay>{activeTask ? <div className="kanban-card kanban-overlay"><h4>{activeTask.title}</h4></div> : null}</DragOverlay></DndContext></div>;
+  return <div><DndContext sensors={sensors} onDragStart={({ active }) => setActiveId(Number(active.id))} onDragCancel={() => setActiveId(null)} onDragEnd={handleDragEnd}><div className="grid grid-cols-4 gap-3.5 max-[800px]:grid-cols-2 max-[480px]:grid-cols-1">{columns.map((column) => <Column key={column.id} {...column} tasks={grouped[column.id]} />)}</div><DragOverlay>{activeTask ? <div className="w-[240px] rotate-3 rounded-[10px] border border-white/10 bg-[#15152a] p-3.5"><h4>{activeTask.title}</h4></div> : null}</DragOverlay></DndContext></div>;
 }

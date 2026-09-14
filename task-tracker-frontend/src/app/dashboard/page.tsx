@@ -372,7 +372,7 @@ export default function DashboardPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="flex min-h-screen items-center justify-center bg-[#080812]">
         <div className="animate-pulse flex flex-col items-center">
           <div className="h-8 w-32 bg-gray-300 rounded mb-4"></div>
           <p className="text-gray-500 font-medium">Checking authentication...</p>
@@ -382,15 +382,15 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="dashboard-shell min-h-screen">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_85%_0,rgba(139,92,246,0.13),transparent_28%),#080812] text-[#f8f7ff]">
       <Toaster position="top-right" reverseOrder={false} />
 
-      <header className="site-header">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="brand"><span className="brand-mark">T</span><span>Taskflow</span></h1>
-          <nav className="dashboard-nav">
-            <Link href="/profile">Profile</Link>
-            <Link href="/admin">Admin</Link>
+      <header className="border-b border-white/10">
+        <div className="mx-auto flex max-w-[1000px] items-center justify-between px-4 py-4">
+          <h1 className="inline-flex items-center gap-2.5 text-[1.1rem] font-bold"><span className="grid h-[29px] w-[29px] place-items-center rounded-[9px] bg-[linear-gradient(135deg,#8b5cf6,#c084fc)] text-white">T</span><span>Taskflow</span></h1>
+          <nav className="ml-auto mr-[18px] flex gap-[18px] text-[0.78rem] text-[#9898ad] max-[800px]:hidden">
+            <Link className="hover:text-[#f8f7ff]" href="/profile">Profile</Link>
+            <Link className="hover:text-[#f8f7ff]" href="/admin">Admin</Link>
           </nav>
           <ThemeControls />
           <button
@@ -402,13 +402,13 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="dashboard-content">
-        <div className="dashboard-intro">
-          <div><span className="eyebrow">Workspace overview</span><h2>Keep the momentum going.</h2><p>Plan, prioritize, and move every important task forward.</p></div>
+      <div className="mx-auto max-w-[1180px] px-7 pb-[100px] pt-[55px] max-[800px]:px-[18px] max-[800px]:pb-[70px] max-[800px]:pt-10">
+        <div className="mb-[35px] flex justify-between">
+          <div><span className="text-[0.68rem] font-bold uppercase tracking-[0.16em] text-[#b49aff]">Workspace overview</span><h2 className="my-3 text-[clamp(2rem,4vw,3rem)] tracking-[-0.07em]">Keep the momentum going.</h2><p className="m-0 text-[#9898ad]">Plan, prioritize, and move every important task forward.</p></div>
         </div>
         <DashboardAnalytics tasks={tasks} />
-        <section className="dashboard-panel kanban-panel">
-          <div className="panel-heading"><div><span className="eyebrow">Drag to organize</span><h2>Workboard</h2></div><span className="panel-hint">Changes sync to your workspace</span></div>
+        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-[14px] max-[800px]:p-[17px]">
+          <div className="mb-[17px] flex items-end justify-between max-[480px]:flex-col max-[480px]:items-start max-[480px]:gap-2.5"><div><span className="text-[0.68rem] font-bold uppercase tracking-[0.16em] text-[#b49aff]">Drag to organize</span><h2 className="mt-2.5 text-[1.3rem] tracking-[-0.04em]">Workboard</h2></div><span className="text-[0.68rem] text-[#9898ad]">Changes sync to your workspace</span></div>
           <KanbanBoard tasks={tasks} onReorder={(nextTasks) => setTasks(nextTasks as Task[])} onPersist={async (task, status, position) => { try { await persistKanbanChange(task as Task, status, position); toast.success('Task position saved'); } catch (error) { toast.error(error instanceof Error ? error.message : 'Could not save task position'); fetchTasks(localStorage.getItem('token') || ''); } }} />
         </section>
       </div>
@@ -416,21 +416,21 @@ export default function DashboardPage() {
       {/* --- Modals for Category & Delete kept the same --- */}
       {showCategoryModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-sm w-full p-6 space-y-4 shadow-xl">
-            <h3 className="text-lg font-bold text-gray-800">Add New Category</h3>
+          <div className="w-full max-w-sm space-y-4 rounded-lg border border-white/10 bg-white/[0.04] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.15)]">
+            <h3 className="text-lg font-bold text-[#f8f7ff]">Add New Category</h3>
             <form onSubmit={handleCreateCategory} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category Name *</label>
+                <label className="mb-1 block text-sm font-medium text-[#f8f7ff]">Category Name *</label>
                 <input
                   type="text"
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   required
-                  className="w-full rounded-md border border-gray-300 p-2 text-gray-900 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-md border border-white/10 bg-white/[0.045] p-2 text-[#f8f7ff] focus:border-[#8b5cf6] focus:outline-none"
                 />
               </div>
               <div className="flex justify-end space-x-3 pt-2">
-                <button type="button" onClick={() => setShowCategoryModal(false)} className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-100">Cancel</button>
+                <button type="button" onClick={() => setShowCategoryModal(false)} className="rounded-md border border-white/10 px-4 py-2 text-[#9898ad] hover:bg-white/[0.06]">Cancel</button>
                 <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Create</button>
               </div>
             </form>
@@ -440,11 +440,11 @@ export default function DashboardPage() {
 
       {taskToDelete !== null && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-sm w-full p-6 space-y-4 shadow-xl">
-            <h3 className="text-lg font-bold text-gray-800">Delete Task?</h3>
-            <p className="text-gray-600 text-sm">Are you sure you want to delete this task? This action cannot be undone.</p>
+          <div className="w-full max-w-sm space-y-4 rounded-lg border border-white/10 bg-white/[0.04] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.15)]">
+            <h3 className="text-lg font-bold text-[#f8f7ff]">Delete Task?</h3>
+            <p className="text-sm text-[#9898ad]">Are you sure you want to delete this task? This action cannot be undone.</p>
             <div className="flex justify-end space-x-3 pt-4">
-              <button type="button" onClick={() => setTaskToDelete(null)} disabled={isDeleting} className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-100">Cancel</button>
+              <button type="button" onClick={() => setTaskToDelete(null)} disabled={isDeleting} className="rounded-md border border-white/10 px-4 py-2 text-[#9898ad] hover:bg-white/[0.06]">Cancel</button>
               <button type="button" onClick={confirmDeleteTask} disabled={isDeleting} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">{isDeleting ? 'Deleting...' : 'Yes, Delete'}</button>
             </div>
           </div>
@@ -454,12 +454,12 @@ export default function DashboardPage() {
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
 
         {/* ADD TASK FORM */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Add New Task</h2>
+        <div className="rounded-lg border border-white/10 bg-white/[0.04] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.15)]">
+          <h2 className="mb-4 text-xl font-semibold text-[#f8f7ff]">Add New Task</h2>
           <form onSubmit={handleCreateTask} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Task Title *</label>
+                <label className="mb-1 block text-sm font-medium text-[#f8f7ff]">Task Title *</label>
                 <input
                   type="text"
                   placeholder="Enter task title"
@@ -467,18 +467,18 @@ export default function DashboardPage() {
                   onChange={(e) => setTitle(e.target.value)}
                   required
                   disabled={isSubmitting}
-                  className="w-full rounded-md border border-gray-300 p-2 text-gray-900 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-md border border-white/10 bg-white/[0.045] p-2 text-[#f8f7ff] focus:border-[#8b5cf6] focus:outline-none"
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="mb-1 block text-sm font-medium text-[#f8f7ff]">Description</label>
                 <textarea
                   placeholder="Enter task description (optional)"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={2}
                   disabled={isSubmitting}
-                  className="w-full rounded-md border border-gray-300 p-2 text-gray-900 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-md border border-white/10 bg-white/[0.045] p-2 text-[#f8f7ff] focus:border-[#8b5cf6] focus:outline-none"
                 />
               </div>
 
@@ -525,13 +525,13 @@ export default function DashboardPage() {
         </div>
 
         {/* TASKS LIST */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 space-y-4">
+        <div className="space-y-4 rounded-lg border border-white/10 bg-white/[0.04] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.15)]">
           <div className="flex flex-col border-b pb-4 gap-4">
-            <h2 className="text-xl font-semibold text-gray-800">Your Tasks</h2>
+            <h2 className="text-xl font-semibold text-[#f8f7ff]">Your Tasks</h2>
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
               <div className="w-full sm:w-1/2">
-                <input type="text" placeholder="Search tasks..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full rounded-md border border-gray-300 p-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"/>
+                <input type="text" placeholder="Search tasks..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full rounded-md border border-white/10 bg-white/[0.045] p-2 text-sm text-[#f8f7ff] focus:border-[#8b5cf6] focus:outline-none"/>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <div className="flex items-center space-x-2">
@@ -641,7 +641,7 @@ export default function DashboardPage() {
       {editingTask && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full p-6 space-y-4 shadow-xl">
-            <h3 className="text-lg font-bold text-gray-800">Edit Task</h3>
+            <h3 className="text-lg font-bold text-[#f8f7ff]">Edit Task</h3>
             <form onSubmit={handleUpdateTask} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Task Title *</label>
