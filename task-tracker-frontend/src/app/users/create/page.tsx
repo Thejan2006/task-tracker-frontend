@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 function getErrorMessage(payload: unknown) {
   if (typeof payload === 'object' && payload !== null && 'detail' in payload) {
@@ -51,7 +51,7 @@ export default function CreateUserPage() {
         throw new Error(getErrorMessage(payload));
       }
 
-      router.push('/login?registered=true');
+      router.push(`/verify-otp?email=${encodeURIComponent(email.trim())}`);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to connect to the server.');
     } finally {

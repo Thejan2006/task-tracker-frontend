@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: "Inter", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: #080812;
+}
+
+body {
+  margin: 0;
+  background: #080812;
+  color: #f8f7ff;
+  font-family: var(--font-sans);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  background: rgb(139 92 246 / 0.35);
+}
+
+.theme-light {
+  color-scheme: light;
+}
+
+.theme-light body {
+  background: #f8fafc;
+  color: #111827;
+}

@@ -6,6 +6,9 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { ThemeControls } from '@/components/ThemeControls';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+const GOOGLE_LOGIN_PATH = process.env.NEXT_PUBLIC_GOOGLE_LOGIN_PATH ?? '/auth/google';
+
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -23,7 +26,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const formData = new URLSearchParams({ username, password });
-      const response = await fetch('http://localhost:8000/login', {
+      const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData,
@@ -37,6 +40,10 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.assign(`${API_URL}${GOOGLE_LOGIN_PATH}?redirect_uri=${encodeURIComponent(`${window.location.origin}/auth/callback`)}`);
   };
 
   return (
@@ -58,6 +65,13 @@ export default function LoginPage() {
             <label className="mb-4 block text-[0.75rem] text-[#9898ad]">Password<input className="mt-[7px] block w-full rounded-[9px] border border-white/10 bg-white/[0.045] px-3.5 py-[13px] text-[#f8f7ff] outline-none focus:border-[#8b5cf6] focus:ring-4 focus:ring-[rgba(139,92,246,0.16)]" type="password" placeholder="Your password" value={password} onChange={(event) => setPassword(event.target.value)} required disabled={isLoading} /></label>
             <button type="submit" className="mt-[7px] inline-flex w-full items-center justify-center gap-2.5 rounded-[10px] bg-[linear-gradient(135deg,#8b5cf6,#6d28d9)] px-5 py-3 text-[0.88rem] font-semibold text-white shadow-[0_8px_25px_rgba(139,92,246,0.25)] transition hover:-translate-y-0.5 disabled:opacity-60" disabled={isLoading}>{isLoading ? 'Signing in...' : 'Sign in'} <span>→</span></button>
           </form>
+          <div className="my-6 flex items-center gap-3 text-[0.7rem] uppercase tracking-[0.14em] text-[#6f6f86]">
+            <span className="h-px flex-1 bg-white/10" />or<span className="h-px flex-1 bg-white/10" />
+          </div>
+          <button type="button" onClick={handleGoogleLogin} className="inline-flex w-full items-center justify-center gap-3 rounded-[10px] border border-white/10 bg-white/[0.06] px-5 py-3 text-[0.88rem] font-semibold text-[#f8f7ff] transition hover:-translate-y-0.5 hover:bg-white/10">
+            <span className="grid h-5 w-5 place-items-center rounded-full bg-white text-sm font-bold text-[#4285f4]">G</span>
+            Continue with Google
+          </button>
           <p className="mt-7 text-[0.8rem] text-[#9898ad]">New to Taskflow? <Link className="text-[#8b5cf6]" href="/users/create">Create an account</Link></p>
         </motion.div>
       </section>
