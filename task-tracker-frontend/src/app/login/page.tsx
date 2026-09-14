@@ -40,25 +40,25 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="login-shell">
-      <section className="login-art">
-        <Link href="/" className="brand"><span className="brand-mark">T</span><span>Taskflow</span></Link>
-        <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5 }}>
+    <main className="grid min-h-screen grid-cols-2 bg-[radial-gradient(circle_at_20%_20%,rgba(139,92,246,0.2),transparent_35%),#080812] text-[#f8f7ff] max-[800px]:grid-cols-1">
+      <section className="flex flex-col justify-between border-r border-white/10 p-[45px] max-[800px]:min-h-[240px] max-[800px]:p-7">
+        <Link href="/" className="inline-flex items-center gap-2.5 text-[1.1rem] font-bold tracking-[-0.03em]"><span className="grid h-[29px] w-[29px] place-items-center rounded-[9px] bg-[linear-gradient(135deg,#8b5cf6,#c084fc)] text-white shadow-[0_0_22px_rgba(139,92,246,0.45)]">T</span><span>Taskflow</span></Link>
+        <motion.h1 className="my-auto max-w-[450px] text-[clamp(3rem,5vw,5rem)] leading-[0.95] tracking-[-0.07em] max-[800px]:mt-[50px] max-[800px]:text-5xl" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5 }}>
           Your best work starts with a little <span>clarity.</span>
         </motion.h1>
         <ThemeControls />
       </section>
-      <section className="login-form-wrap">
-        <motion.div className="login-card" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5, delay: .1 }}>
-          <h1>Welcome back</h1>
-          <p>Sign in to continue to your workspace.</p>
-          {error && <div className="error-message">{error}</div>}
+      <section className="grid place-items-center p-[30px] max-[800px]:px-[18px] max-[800px]:py-[25px]">
+        <motion.div className="w-full max-w-[390px] rounded-[18px] border border-white/10 bg-white/[0.04] p-[35px] backdrop-blur-[16px]" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5, delay: .1 }}>
+          <h1 className="mb-2 tracking-[-0.04em]">Welcome back</h1>
+          <p className="mb-7 text-[0.85rem] text-[#9898ad]">Sign in to continue to your workspace.</p>
+          {error && <div className="mb-[15px] rounded-lg bg-[rgba(239,68,68,0.12)] p-2.5 text-[0.78rem] text-[#fca5a5]">{error}</div>}
           <form onSubmit={handleLogin}>
-            <label className="field">Username<input type="text" placeholder="you@example.com" value={username} onChange={(event) => setUsername(event.target.value)} required disabled={isLoading} /></label>
-            <label className="field">Password<input type="password" placeholder="Your password" value={password} onChange={(event) => setPassword(event.target.value)} required disabled={isLoading} /></label>
-            <button type="submit" className="button button-primary" disabled={isLoading}>{isLoading ? 'Signing in...' : 'Sign in'} <span>→</span></button>
+            <label className="mb-4 block text-[0.75rem] text-[#9898ad]">Username<input className="mt-[7px] block w-full rounded-[9px] border border-white/10 bg-white/[0.045] px-3.5 py-[13px] text-[#f8f7ff] outline-none focus:border-[#8b5cf6] focus:ring-4 focus:ring-[rgba(139,92,246,0.16)]" type="text" placeholder="you@example.com" value={username} onChange={(event) => setUsername(event.target.value)} required disabled={isLoading} /></label>
+            <label className="mb-4 block text-[0.75rem] text-[#9898ad]">Password<input className="mt-[7px] block w-full rounded-[9px] border border-white/10 bg-white/[0.045] px-3.5 py-[13px] text-[#f8f7ff] outline-none focus:border-[#8b5cf6] focus:ring-4 focus:ring-[rgba(139,92,246,0.16)]" type="password" placeholder="Your password" value={password} onChange={(event) => setPassword(event.target.value)} required disabled={isLoading} /></label>
+            <button type="submit" className="mt-[7px] inline-flex w-full items-center justify-center gap-2.5 rounded-[10px] bg-[linear-gradient(135deg,#8b5cf6,#6d28d9)] px-5 py-3 text-[0.88rem] font-semibold text-white shadow-[0_8px_25px_rgba(139,92,246,0.25)] transition hover:-translate-y-0.5 disabled:opacity-60" disabled={isLoading}>{isLoading ? 'Signing in...' : 'Sign in'} <span>→</span></button>
           </form>
-          <p className="login-footer">New to Taskflow? <Link href="/users/create">Create an account</Link></p>
+          <p className="mt-7 text-[0.8rem] text-[#9898ad]">New to Taskflow? <Link className="text-[#8b5cf6]" href="/users/create">Create an account</Link></p>
         </motion.div>
       </section>
     </main>
