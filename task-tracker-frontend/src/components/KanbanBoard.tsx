@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react';
 import { DndContext, DragEndEvent, DragOverlay, PointerSensor, useDroppable, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { motion } from 'framer-motion';
 
 export type TaskStatus = 'todo' | 'in_progress' | 'review' | 'done';
 
@@ -32,29 +31,27 @@ function getStatus(task: BoardTask): TaskStatus {
 }
 
 function SortableCard({ task }: { task: BoardTask }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useSortable({ id: task.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
   return (
-    <motion.article
+    <article
       ref={setNodeRef}
-      animate={{ transform: CSS.Transform.toString(transform) }}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
       {...attributes}
       {...listeners}
-      layout
-      className={`mb-[9px] cursor-grab touch-none rounded-[10px] border border-white/10 bg-[#15152a] p-3.5 shadow-[0_8px_20px_rgba(0,0,0,0.1)] transition-transform active:cursor-grabbing ${isDragging ? 'opacity-50' : ''}`}
-      whileHover={{ y: -3 }}
+      className={`glass-panel mb-[9px] cursor-grab touch-none rounded-xl p-3.5 transition-[box-shadow,border-color,opacity] hover:-translate-y-0.5 active:cursor-grabbing ${isDragging ? 'opacity-50' : ''}`}
     >
-      <div className="flex min-h-2.5 items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${task.priority === 'High' ? 'bg-red-500' : task.priority === 'Medium' ? 'bg-amber-500' : task.priority === 'Low' ? 'bg-green-500' : 'bg-[#9898ad]'}`} />{task.priority && <small className="text-[0.6rem] text-[#9898ad]">{task.priority}</small>}</div>
+      <div className="flex min-h-2.5 items-center gap-1.5"><span className={`h-2 w-2 rounded-full shadow-[0_0_10px_currentColor] ${task.priority === 'High' ? 'bg-rose-400 text-rose-400' : task.priority === 'Medium' ? 'bg-amber-300 text-amber-300' : task.priority === 'Low' ? 'bg-neon-lime text-neon-lime' : 'bg-[#9898ad]'}`} />{task.priority && <small className="text-[0.6rem] text-[#9aa4c7]">{task.priority}</small>}</div>
       <h4 className="my-2.5 mb-[5px] text-[0.8rem] leading-[1.3]">{task.title}</h4>
       {task.description && <p className="m-0 text-[0.67rem] leading-[1.4] text-[#9898ad]">{task.description}</p>}
       {task.due_date && <time className="mt-2.5 block text-[0.6rem] text-[#9898ad]">Due {new Date(task.due_date).toLocaleDateString()}</time>}
-    </motion.article>
+    </article>
   );
 }
 
 function Column({ id, label, color, tasks }: { id: TaskStatus; label: string; color: string; tasks: BoardTask[] }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   return (
-    <section ref={setNodeRef} className={`min-w-0 rounded-xl border transition-colors ${isOver ? 'border-[#8b5cf6] bg-[rgba(139,92,246,0.16)]' : 'border-transparent bg-black/10'}`}>
+    <section ref={setNodeRef} className={`min-w-0 rounded-2xl border transition-colors ${isOver ? 'border-neon-cyan bg-neon-cyan/10 shadow-neon' : 'border-white/10 bg-black/10'}`}>
       <header className="flex justify-between px-3.5 pb-2.5 pt-[15px]"><span className="flex items-center gap-[7px] text-[0.76rem] font-bold"><i className={`h-[7px] w-[7px] rounded-full ${id === 'todo' ? 'bg-slate-400' : id === 'in_progress' ? 'bg-violet-500' : id === 'review' ? 'bg-amber-500' : 'bg-green-500'}`} />{label}</span><b className="grid h-[21px] min-w-[21px] place-items-center rounded-full bg-white/10 text-[0.65rem] text-[#9898ad]">{tasks.length}</b></header>
       <SortableContext items={tasks.map((task) => task.id)} strategy={verticalListSortingStrategy}>
         <div className="min-h-[160px] px-[9px] pb-2.5 pt-[5px] max-[480px]:min-h-[110px]">{tasks.map((task) => <SortableCard key={task.id} task={task} />)}{tasks.length === 0 && <span className="grid min-h-[100px] place-items-center rounded-lg border border-dashed border-white/10 text-[0.7rem] text-[#9898ad]">Drop tasks here</span>}</div>
@@ -86,5 +83,5 @@ export function KanbanBoard({ tasks, onReorder, onPersist }: { tasks: BoardTask[
   };
 
   const activeTask = activeId ? tasks.find((task) => task.id === activeId) : null;
-  return <div><DndContext sensors={sensors} onDragStart={({ active }) => setActiveId(Number(active.id))} onDragCancel={() => setActiveId(null)} onDragEnd={handleDragEnd}><div className="grid grid-cols-4 gap-3.5 max-[800px]:grid-cols-2 max-[480px]:grid-cols-1">{columns.map((column) => <Column key={column.id} {...column} tasks={grouped[column.id]} />)}</div><DragOverlay>{activeTask ? <div className="w-[240px] rotate-3 rounded-[10px] border border-white/10 bg-[#15152a] p-3.5"><h4>{activeTask.title}</h4></div> : null}</DragOverlay></DndContext></div>;
+  return <div><DndContext sensors={sensors} onDragStart={({ active }) => setActiveId(Number(active.id))} onDragCancel={() => setActiveId(null)} onDragEnd={handleDragEnd}><div className="grid grid-cols-4 gap-3.5 max-[800px]:grid-cols-2 max-[480px]:grid-cols-1">{columns.map((column) => <Column key={column.id} {...column} tasks={grouped[column.id]} />)}</div><DragOverlay>{activeTask ? <div className="glass-panel w-[240px] rotate-3 rounded-xl p-3.5"><h4>{activeTask.title}</h4></div> : null}</DragOverlay></DndContext></div>;
 }
