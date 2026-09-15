@@ -30,17 +30,21 @@ export function LandingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_78%_8%,rgba(139,92,246,0.14),transparent_28%),radial-gradient(circle_at_10%_42%,rgba(6,182,212,0.08),transparent_25%),#080812] text-[#f8f7ff]">
+    <main className="neon-page grid-overlay overflow-hidden">
+      <motion.video autoPlay muted loop playsInline preload="metadata" className="fixed inset-0 z-0 h-screen w-screen object-cover opacity-[0.22] mix-blend-screen" aria-hidden="true" initial={{ scale: 1.08, x: -12, y: -4 }} animate={{ scale: [1.08, 1.15, 1.08], x: [-12, 10, -12], y: [-4, 8, -4] }} transition={{ duration: 18, ease: 'easeInOut', repeat: Infinity }}>
+        {/* Full-page ambient video: served directly from the public folder. */}
+        <source src="/124825-731960032.mp4" type="video/mp4" />
+      </motion.video>
       <SiteHeader />
       <section className="mx-auto max-w-[900px] px-7 pb-[55px] pt-[110px] text-center max-[480px]:pt-[70px]">
-        <span className="text-[0.68rem] font-bold uppercase tracking-[0.16em] text-[#b49aff]">{eyebrow}</span>
-        <h1 className="mx-auto my-[22px] mb-5 max-w-[650px] text-[clamp(3rem,6vw,5rem)] leading-[0.98] tracking-[-0.075em] [&>span]:text-[#8b5cf6]">{title}</h1>
+        <span className="eyebrow">{eyebrow}</span>
+        <h1 className="mx-auto my-[22px] mb-5 max-w-[650px] text-[clamp(3rem,6vw,5rem)] leading-[0.98] tracking-[-0.075em] [&>span]:bg-[linear-gradient(90deg,#9b6cff,#27d7ff)] [&>span]:bg-clip-text [&>span]:text-transparent">{title}</h1>
         <p className="mx-auto max-w-[510px] text-[1.08rem] leading-[1.7] text-[#9898ad]">{description}</p>
       </section>
       {children}
       <footer className="mx-auto flex max-w-[1180px] items-end justify-between px-7 pb-10 text-[0.75rem] text-[#9898ad] max-[800px]:items-start max-[800px]:flex-col max-[800px]:gap-6">
         <div>
-          <Link href="/" className="inline-flex items-center gap-2.5 text-[1.1rem] font-bold tracking-[-0.03em] text-[#f8f7ff]"><span className="grid h-[29px] w-[29px] place-items-center rounded-[9px] bg-[linear-gradient(135deg,#8b5cf6,#c084fc)] text-white shadow-[0_0_22px_rgba(139,92,246,0.45)]">T</span><span>Taskflow</span></Link>
+          <Link href="/" className="inline-flex items-center gap-2.5 text-[1.1rem] font-bold tracking-[-0.03em] text-[#f8f7ff]"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[linear-gradient(135deg,#9b6cff,#27d7ff)] text-white shadow-neon">T</span><span>Taskflow</span></Link>
           <p>Make space for the work that matters.</p>
         </div>
         <span>© 2026 Taskflow. Built for focused teams.</span>
