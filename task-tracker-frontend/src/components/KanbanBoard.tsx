@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   DndContext,
   DragEndEvent,
@@ -156,6 +157,12 @@ export function KanbanBoard({
   onReorder: (tasks: BoardTask[]) => void;
   onPersist: (task: BoardTask, status: TaskStatus, position: number) => Promise<void>;
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -259,9 +266,14 @@ export function KanbanBoard({
           ))}
         </div>
 
-        <DragOverlay dropAnimation={dropAnimation}>
-          {activeTask ? <TaskCardUI task={activeTask} isOverlay /> : null}
-        </DragOverlay>
+        {/* Portal renders DragOverlay into document.body to escape transformed Tailwind parents */}
+        {mounted &&
+          createPortal(
+            <DragOverlay dropAnimation={dropAnimation}>
+              {activeTask ? <TaskCardUI task={activeTask} isOverlay /> : null}
+            </DragOverlay>,
+            document.body
+          )}
       </DndContext>
     </div>
   );
