@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
-const VERIFY_OTP_PATH = process.env.NEXT_PUBLIC_VERIFY_OTP_PATH ?? '/verify-otp';
-const RESEND_OTP_PATH = process.env.NEXT_PUBLIC_RESEND_OTP_PATH ?? '/resend-otp';
+const VERIFY_OTP_PATH = process.env.NEXT_PUBLIC_VERIFY_OTP_PATH ?? '/otp/verify-otp';
+const RESEND_OTP_PATH = process.env.NEXT_PUBLIC_RESEND_OTP_PATH ?? '/otp/resend-otp';
 
 function messageFromPayload(payload: unknown, fallback: string) {
   if (typeof payload === 'object' && payload !== null && 'detail' in payload) {
@@ -91,6 +92,10 @@ export default function VerifyOtpPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#080812] px-4 py-10 text-[#f8f7ff]">
+      <motion.video autoPlay muted loop playsInline preload="metadata" className="fixed inset-0 z-0 h-screen w-screen object-cover opacity-[0.22] mix-blend-screen" aria-hidden="true" initial={{ scale: 1.08, x: -12, y: -4 }} animate={{ scale: [1.08, 1.15, 1.08], x: [-12, 10, -12], y: [-4, 8, -4] }} transition={{ duration: 18, ease: 'easeInOut', repeat: Infinity }}>
+        {/* Full-page ambient video: served directly from the public folder. */}
+        <source src="/124825-731960032.mp4" type="video/mp4" />
+      </motion.video>
       <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-violet-500/20 blur-3xl" />
       <div className="absolute -bottom-32 -right-20 h-96 w-96 rounded-full bg-cyan-500/15 blur-3xl" />
       <section className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.06] p-7 shadow-2xl shadow-black/30 backdrop-blur-2xl sm:p-10">

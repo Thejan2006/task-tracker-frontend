@@ -13,7 +13,8 @@ The dashboard currently calculates statistics from the authoritative `GET /tasks
 
 Profile UI expects:
 
-- `GET /users/me` -> `{ id, username, email, name, bio, avatar_url }`
+- `GET /users/me` -> `{ id, username, email, name, bio, avatar_url, is_admin }`
+  - `is_admin` is a boolean used only to show the Admin panel navigation link. The `/admin/users` endpoint remains the authoritative server-side authorization check.
 - `PUT /users/me` multipart form fields `name`, `bio`, optional `avatar`
 
 Admin UI expects backend authorization (not client-side role hiding):

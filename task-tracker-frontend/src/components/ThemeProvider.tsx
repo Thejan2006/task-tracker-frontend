@@ -28,8 +28,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.dataset.theme = mode;
     document.documentElement.classList.toggle('theme-light', mode === 'light');
     document.documentElement.classList.toggle('theme-dark', mode === 'dark');
+    document.documentElement.classList.toggle('light', mode === 'light');
+    document.documentElement.classList.toggle('dark', mode === 'dark');
     document.documentElement.classList.remove('accent-violet', 'accent-cyan', 'accent-orange');
     document.documentElement.classList.add(accent === '#06b6d4' ? 'accent-cyan' : accent === '#f97316' ? 'accent-orange' : 'accent-violet');
+    document.documentElement.style.setProperty('--brand-accent', accent);
     localStorage.setItem('theme-mode', mode);
     localStorage.setItem('theme-accent', accent);
   }, [mode, accent]);
