@@ -75,7 +75,7 @@ export default function CreateUserPage() {
       <div className="glass-panel relative grid w-full max-w-5xl overflow-hidden rounded-3xl lg:grid-cols-[0.9fr_1.1fr]">
         <section className="hidden bg-[radial-gradient(circle_at_20%_20%,rgba(39,215,255,.3),transparent_32%),linear-gradient(145deg,rgba(80,45,185,.82),rgba(8,20,54,.88))] p-10 text-white lg:flex lg:flex-col lg:justify-between">
           <div>
-            <BrandLogo />
+            <span className="eyebrow">Welcome to Taskflow</span>
             <h1 className="mt-16 text-4xl font-bold leading-tight">Turn busy days into clear next steps.</h1>
             <p className="mt-5 max-w-sm text-blue-50">
               Organize tasks, group your work, and keep momentum with a workspace built for focus.
@@ -91,7 +91,7 @@ export default function CreateUserPage() {
             <p className="mt-2 text-sm text-[#9aa4c7]">Join TaskFlow and start managing your work today.</p>
           </div>
 
-          {error && <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+          {error && <div className="mb-5 rounded-xl border border-rose-500/30 bg-rose-500/15 p-3.5 text-sm text-rose-200">{error}</div>}
 
           <form onSubmit={handleCreateUser} className="space-y-4">
             <div>

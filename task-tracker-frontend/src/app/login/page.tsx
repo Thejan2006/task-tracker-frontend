@@ -55,7 +55,9 @@ export default function LoginPage() {
         <source src="/124825-731960032.mp4" type="video/mp4" />
       </motion.video>
       <section className="flex flex-col justify-between border-r border-white/10 p-11.25 max-[800px]:min-h-60 max-[800px]:p-7">
-        <BrandLogo />
+        <div className="hidden lg:block">
+          <span className="eyebrow">Momentum awaits</span>
+        </div>
         <motion.h1 className="my-auto max-w-112.5 text-[clamp(3rem,5vw,5rem)] leading-[0.95] tracking-[-0.07em] max-[800px]:mt-12.5 max-[800px]:text-5xl" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5 }}>
           Your best work starts with a little <span>clarity.</span>
         </motion.h1>
@@ -65,7 +67,7 @@ export default function LoginPage() {
         <motion.div className="w-full max-w-97.5 rounded-[18px] border border-white/10 bg-white/4 p-8.75 backdrop-blur-lg" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5, delay: .1 }}>
           <h1 className="mb-2 tracking-[-0.04em]">Welcome back</h1>
           <p className="mb-7 text-[0.85rem] text-[#9898ad]">Sign in to continue to your workspace.</p>
-          {error && <div className="mb-3.75 rounded-lg bg-[rgba(239,68,68,0.12)] p-2.5 text-[0.78rem] text-[#fca5a5]">{error}</div>}
+          {error && <div className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/15 p-3 text-xs text-rose-200">{error}</div>}
           <form onSubmit={handleLogin}>
             <label className="mb-4 block text-[0.75rem] text-[#9898ad]">Username<input className="mt-1.75 block w-full rounded-[9px] border border-white/10 bg-white/4.5 px-3.5 py-3.25 text-[#f8f7ff] outline-none focus:border-[#8b5cf6] focus:ring-4 focus:ring-[rgba(139,92,246,0.16)]" type="text" placeholder="you@example.com" value={username} onChange={(event) => setUsername(event.target.value)} required disabled={isLoading} /></label>
             <label className="mb-4 block text-[0.75rem] text-[#9898ad]">Password<input className="mt-1.75 block w-full rounded-[9px] border border-white/10 bg-white/4.5 px-3.5 py-3.25 text-[#f8f7ff] outline-none focus:border-[#8b5cf6] focus:ring-4 focus:ring-[rgba(139,92,246,0.16)]" type="password" placeholder="Your password" value={password} onChange={(event) => setPassword(event.target.value)} required disabled={isLoading} /></label>
