@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { BrandLogo } from '@/components/BrandLogo';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 const VERIFY_OTP_PATH = process.env.NEXT_PUBLIC_VERIFY_OTP_PATH ?? '/otp/verify-otp';
@@ -99,10 +100,7 @@ export default function VerifyOtpPage() {
       <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-violet-500/20 blur-3xl" />
       <div className="absolute -bottom-32 -right-20 h-96 w-96 rounded-full bg-cyan-500/15 blur-3xl" />
       <section className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.06] p-7 shadow-2xl shadow-black/30 backdrop-blur-2xl sm:p-10">
-        <Link href="/" className="inline-flex items-center gap-2.5 text-lg font-bold tracking-tight">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-violet-400 to-violet-700 shadow-lg shadow-violet-500/30">T</span>
-          Taskflow
-        </Link>
+        <BrandLogo href="/" />
         <div className="mt-12">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">Almost there</p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight">Verify your email</h1>

@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom';
 import {
   DndContext,
   DragEndEvent,
-  DragOverEvent,
   DragOverlay,
   PointerSensor,
   useDroppable,
@@ -25,6 +24,8 @@ export interface BoardTask {
   title: string;
   description?: string;
   is_completed: boolean;
+  category_id?: number | null;
+  category?: { id: number; name: string };
   status?: TaskStatus | string | null;
   position?: number;
   priority?: string | null;
@@ -43,93 +44,187 @@ function getStatus(task: BoardTask): TaskStatus {
   return task.is_completed ? 'done' : 'todo';
 }
 
+function isDateOverdue(dateString?: string | null, isCompleted?: boolean): boolean {
+  if (!dateString || isCompleted) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const parts = dateString.split('T')[0].split('-');
+  if (parts.length === 3) {
+    const due = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    return due < today;
+  }
+  const dueDate = new Date(dateString);
+  return dueDate < today;
+}
+
+function formatDate(dateString?: string | null): string {
+  if (!dateString) return '';
+  const parts = dateString.split('T')[0].split('-');
+  if (parts.length === 3) {
+    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+  return new Date(dateString).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
 /* --- Presentation Card (Used inside regular list & DragOverlay) --- */
-function TaskCardUI({ task, isOverlay = false, onClick }: { task: BoardTask; isOverlay?: boolean; onClick?: () => void }) {
+function TaskCardUI({
+  task,
+  categoryName,
+  isOverlay = false,
+  onClick,
+}: {
+  task: BoardTask;
+  categoryName?: string;
+  isOverlay?: boolean;
+  onClick?: () => void;
+}) {
+  const overdue = isDateOverdue(task.due_date, task.is_completed || task.status === 'done');
+
   return (
     <article
       onClick={onClick}
-      className={`glass-panel mb-[9px] select-none rounded-xl p-3.5 transition-shadow ${
+      className={`glass-panel mb-2.5 select-none rounded-xl p-3.5 transition-colors ${
         isOverlay
-          ? 'cursor-grabbing shadow-[0_12px_30px_rgba(139,92,246,0.3)] border-[#8b5cf6] bg-[#16132a]'
-          : 'cursor-grab hover:-translate-y-0.5 active:cursor-grabbing'
-      }`}
+          ? 'w-[270px] max-w-[90vw] rotate-1 cursor-grabbing border-[#8b5cf6] bg-[#121633] shadow-[0_16px_36px_rgba(139,92,246,0.35)] backdrop-blur-xl'
+          : 'cursor-grab hover:border-white/20 active:cursor-grabbing'
+      } ${overdue ? 'border-rose-400/40 bg-rose-500/[0.07]' : ''}`}
     >
-      <div className="flex min-h-2.5 items-center gap-1.5">
-        <span
-          className={`h-2 w-2 rounded-full shadow-[0_0_10px_currentColor] ${
-            task.priority === 'High'
-              ? 'bg-rose-400 text-rose-400'
-              : task.priority === 'Medium'
-              ? 'bg-amber-300 text-amber-300'
-              : task.priority === 'Low'
-              ? 'bg-neon-lime text-neon-lime'
-              : 'bg-[#9898ad]'
-          }`}
-        />
-        {task.priority && <small className="text-[0.6rem] text-[#9aa4c7]">{task.priority}</small>}
+      <div className="flex min-h-3 items-center justify-between gap-1.5">
+        <div className="flex items-center gap-1.5">
+          <span
+            className={`h-2 w-2 rounded-full shadow-[0_0_8px_currentColor] ${
+              task.priority === 'High'
+                ? 'bg-rose-400 text-rose-400'
+                : task.priority === 'Medium'
+                ? 'bg-amber-300 text-amber-300'
+                : task.priority === 'Low'
+                ? 'bg-emerald-400 text-emerald-400'
+                : 'bg-[#9898ad] text-[#9898ad]'
+            }`}
+          />
+          {task.priority && (
+            <small className="text-[0.62rem] font-medium text-[#9aa4c7]">{task.priority}</small>
+          )}
+        </div>
+
+        {categoryName && (
+          <span className="truncate rounded-md border border-cyan-400/20 bg-cyan-400/10 px-1.5 py-0.5 text-[0.58rem] font-medium text-cyan-300">
+            {categoryName}
+          </span>
+        )}
       </div>
-      <h4 className="my-2.5 mb-[5px] text-[0.8rem] leading-[1.3] text-[#f8f7ff]">{task.title}</h4>
-      {task.description && <p className="m-0 line-clamp-2 text-[0.67rem] leading-[1.4] text-[#9898ad]">{task.description}</p>}
-      {task.due_date && <time className="mt-2.5 block text-[0.6rem] text-[#9898ad]">Due {new Date(task.due_date).toLocaleDateString()}</time>}
+
+      <h4 className="my-2 text-[0.82rem] font-semibold leading-[1.3] text-[#f8f7ff] break-words">
+        {task.title}
+      </h4>
+
+      {task.description && (
+        <p className="m-0 line-clamp-2 text-[0.68rem] leading-[1.4] text-[#9898ad] break-words">
+          {task.description}
+        </p>
+      )}
+
+      {task.due_date && (
+        <time
+          className={`mt-2.5 flex items-center gap-1 text-[0.62rem] ${
+            overdue ? 'font-semibold text-rose-300' : 'text-[#9898ad]'
+          }`}
+        >
+          <span>📅</span>
+          <span>Due {formatDate(task.due_date)}</span>
+          {overdue && <span className="ml-0.5 text-rose-400 font-bold">(Overdue)</span>}
+        </time>
+      )}
     </article>
   );
 }
 
 /* --- Draggable Sortable Card Wrapper --- */
-function SortableCard({ task, onClick }: { task: BoardTask; onClick?: () => void }) {
+function SortableCard({
+  task,
+  categoryName,
+  onClick,
+}: {
+  task: BoardTask;
+  categoryName?: string;
+  onClick?: () => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
 
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
-    opacity: isDragging ? 0.3 : 1,
+    opacity: isDragging ? 0.25 : 1,
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="touch-none">
-      <TaskCardUI task={task} onClick={onClick} />
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="touch-none select-none">
+      <TaskCardUI task={task} categoryName={categoryName} onClick={onClick} />
     </div>
   );
 }
 
 /* --- Droppable Column Container --- */
-function Column({ id, label, color, tasks, onTaskClick }: { id: TaskStatus; label: string; color: string; tasks: BoardTask[]; onTaskClick?: (task: BoardTask) => void }) {
+function Column({
+  id,
+  label,
+  tasks,
+  categoriesMap,
+  onTaskClick,
+}: {
+  id: TaskStatus;
+  label: string;
+  color: string;
+  tasks: BoardTask[];
+  categoriesMap: Map<number, string>;
+  onTaskClick?: (task: BoardTask) => void;
+}) {
   const { setNodeRef, isOver } = useDroppable({ id });
+
   return (
     <section
       ref={setNodeRef}
       className={`min-w-0 rounded-2xl border transition-colors ${
-        isOver ? 'border-neon-cyan bg-neon-cyan/10 shadow-neon' : 'border-white/10 bg-black/10'
+        isOver
+          ? 'border-neon-cyan bg-neon-cyan/[0.08] shadow-[0_0_24px_rgba(39,215,255,0.18)]'
+          : 'border-white/10 bg-white/[0.02]'
       }`}
     >
-      <header className="flex justify-between px-3.5 pb-2.5 pt-[15px]">
-        <span className="flex items-center gap-[7px] text-[0.76rem] font-bold">
+      <header className="flex items-center justify-between px-3.5 pb-2.5 pt-3.5 border-b border-white/[0.06]">
+        <span className="flex items-center gap-2 text-[0.78rem] font-bold tracking-tight text-[#f8f7ff]">
           <i
-            className={`h-[7px] w-[7px] rounded-full ${
+            className={`h-2 w-2 rounded-full ${
               id === 'todo'
                 ? 'bg-slate-400'
                 : id === 'in_progress'
-                ? 'bg-violet-500'
+                ? 'bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.5)]'
                 : id === 'review'
-                ? 'bg-amber-500'
-                : 'bg-green-500'
+                ? 'bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
+                : 'bg-emerald-400 shadow-[0_0_8px_rgba(34,197,94,0.5)]'
             }`}
           />
           {label}
         </span>
-        <b className="grid h-[21px] min-w-[21px] place-items-center rounded-full bg-white/10 text-[0.65rem] text-[#9898ad]">
+        <b className="grid h-5 min-w-5 place-items-center rounded-full bg-white/10 px-1.5 text-[0.68rem] font-semibold text-[#9898ad]">
           {tasks.length}
         </b>
       </header>
+
       <SortableContext items={tasks.map((task) => task.id)} strategy={verticalListSortingStrategy}>
-        <div className="min-h-[160px] px-[9px] pb-2.5 pt-[5px] max-[480px]:min-h-[110px]">
+        <div className="min-h-[170px] p-2.5 max-[480px]:min-h-[120px]">
           {tasks.map((task) => (
-            <SortableCard key={task.id} task={task} onClick={() => onTaskClick?.(task)} />
+            <SortableCard
+              key={task.id}
+              task={task}
+              categoryName={task.category?.name || (task.category_id ? categoriesMap.get(task.category_id) : undefined)}
+              onClick={() => onTaskClick?.(task)}
+            />
           ))}
           {tasks.length === 0 && (
-            <span className="grid min-h-[100px] place-items-center rounded-lg border border-dashed border-white/10 text-[0.7rem] text-[#9898ad]">
+            <div className="grid min-h-[120px] place-items-center rounded-xl border border-dashed border-white/10 text-[0.72rem] text-[#9898ad]">
               Drop tasks here
-            </span>
+            </div>
           )}
         </div>
       </SortableContext>
@@ -150,84 +245,94 @@ const dropAnimation: DropAnimation = {
 
 export function KanbanBoard({
   tasks,
+  categories = [],
   onReorder,
   onPersist,
 }: {
   tasks: BoardTask[];
+  categories?: { id: number; name: string }[];
   onReorder: (tasks: BoardTask[]) => void;
   onPersist: (task: BoardTask, status: TaskStatus, position: number) => Promise<void>;
 }) {
   const [mounted, setMounted] = useState(false);
-  
-  // State for the Pop-up Modal
   const [selectedTask, setSelectedTask] = useState<BoardTask | null>(null);
+  const [activeId, setActiveId] = useState<number | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedTask(null);
+      }
+    };
+    if (selectedTask) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [selectedTask]);
+
+  const categoriesMap = useMemo(() => {
+    const map = new Map<number, string>();
+    categories.forEach((cat) => map.set(cat.id, cat.name));
+    return map;
+  }, [categories]);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5, // Allows normal clicks to pass through to open the modal
+        distance: 5, // Allows clicks to open modal while enabling smooth drag
       },
     })
   );
 
-  const [activeId, setActiveId] = useState<number | null>(null);
+  const getPriorityWeight = (priority?: string | null) => {
+    if (priority === 'High') return 3;
+    if (priority === 'Medium') return 2;
+    if (priority === 'Low') return 1;
+    return 0;
+  };
 
   const grouped = useMemo(() => {
-    const getPriorityWeight = (priority?: string | null) => {
-      if (priority === 'High') return 3;
-      if (priority === 'Medium') return 2;
-      if (priority === 'Low') return 1;
-      return 0; 
-    };
-
     return columns.reduce<Record<TaskStatus, BoardTask[]>>(
       (result, column) => {
         result[column.id] = tasks
           .filter((task) => getStatus(task) === column.id)
           .sort((a, b) => {
+            const hasPosA = typeof a.position === 'number';
+            const hasPosB = typeof b.position === 'number';
+
+            // Explicit positions take highest precedence for drag ordering
+            if (hasPosA && hasPosB && a.position !== b.position) {
+              return a.position! - b.position!;
+            }
+            if (hasPosA && !hasPosB) return -1;
+            if (!hasPosA && hasPosB) return 1;
+
+            // When positions are equal or unset, sort by Priority (Highest first: High -> Medium -> Low -> None)
             const weightA = getPriorityWeight(a.priority);
             const weightB = getPriorityWeight(b.priority);
-            
             if (weightA !== weightB) {
-              return weightB - weightA; 
+              return weightB - weightA;
             }
 
+            // Next sort by due date
             if (a.due_date && b.due_date) {
               return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
             }
             if (a.due_date) return -1;
-            if (b.due_date) return 1;  
+            if (b.due_date) return 1;
 
-            return (a.position ?? a.id) - (b.position ?? b.id);
+            return a.id - b.id;
           });
         return result;
       },
       { todo: [], in_progress: [], review: [], done: [] }
     );
   }, [tasks]);
-
-  const handleDragOver = ({ active, over }: DragOverEvent) => {
-    if (!over) return;
-    const activeTask = tasks.find((t) => t.id === active.id);
-    if (!activeTask) return;
-    const activeStatus = getStatus(activeTask);
-    const overId = over.id;
-
-    const overStatus: TaskStatus | null = columns.some((c) => c.id === overId)
-      ? (overId as TaskStatus)
-      : tasks.find((t) => t.id === overId)
-      ? getStatus(tasks.find((t) => t.id === overId)!)
-      : null;
-
-    if (!overStatus || activeStatus === overStatus) return;
-
-    const nextTasks = tasks.map((t) => (t.id === activeTask.id ? { ...t, status: overStatus } : t));
-    onReorder(nextTasks);
-  };
 
   const handleDragEnd = async ({ active, over }: DragEndEvent) => {
     setActiveId(null);
@@ -237,36 +342,74 @@ export function KanbanBoard({
     if (!current) return;
 
     const sourceStatus = getStatus(current);
-    const destinationStatus = columns.some((column) => column.id === over.id)
+    const destinationStatus: TaskStatus = columns.some((column) => column.id === over.id)
       ? (over.id as TaskStatus)
       : tasks.find((task) => task.id === over.id)
       ? getStatus(tasks.find((task) => task.id === over.id) as BoardTask)
       : sourceStatus;
 
-    const destination = [...grouped[destinationStatus]];
-    const fromIndex = destination.findIndex((task) => task.id === current.id);
-    const overIndex = destination.findIndex((task) => task.id === over.id);
+    if (sourceStatus === destinationStatus) {
+      // Reordering within the same column
+      const columnTasks = [...grouped[destinationStatus]];
+      const fromIndex = columnTasks.findIndex((task) => task.id === current.id);
+      const overIndex = columnTasks.findIndex((task) => task.id === over.id);
 
-    const nextColumn =
-      sourceStatus === destinationStatus
-        ? arrayMove(destination, fromIndex, overIndex < 0 ? destination.length - 1 : overIndex)
-        : [...destination.filter((task) => task.id !== current.id), current];
+      if (fromIndex === overIndex || fromIndex < 0) return;
 
-    const finalPosition = nextColumn.findIndex((item) => item.id === current.id);
+      const targetIndex = overIndex >= 0 ? overIndex : columnTasks.length - 1;
+      const reorderedColumn = arrayMove(columnTasks, fromIndex, targetIndex);
+      const updatedColumnTasks = reorderedColumn.map((task, idx) => ({
+        ...task,
+        position: idx,
+      }));
 
-    const nextTasks = tasks.map((task) =>
-      task.id === current.id
-        ? {
-            ...task,
-            status: destinationStatus,
-            is_completed: destinationStatus === 'done',
-            position: finalPosition,
-          }
-        : task
-    );
+      const finalPosition = updatedColumnTasks.findIndex((t) => t.id === current.id);
+      const updatedMap = new Map<number, BoardTask>();
+      updatedColumnTasks.forEach((t) => updatedMap.set(t.id, t));
 
-    onReorder(nextTasks);
-    await onPersist({ ...current, status: destinationStatus }, destinationStatus, finalPosition);
+      const nextTasks = tasks.map((t) => updatedMap.get(t.id) || t);
+      onReorder(nextTasks);
+      await onPersist(
+        { ...current, position: finalPosition, status: destinationStatus },
+        destinationStatus,
+        finalPosition
+      );
+    } else {
+      // Moving to a different column
+      const destTasks = [...grouped[destinationStatus]].filter((t) => t.id !== current.id);
+      const overIndex = destTasks.findIndex((task) => task.id === over.id);
+      const insertIndex = overIndex >= 0 ? overIndex : destTasks.length;
+
+      const movedTask: BoardTask = {
+        ...current,
+        status: destinationStatus,
+        is_completed: destinationStatus === 'done',
+      };
+
+      destTasks.splice(insertIndex, 0, movedTask);
+      const updatedDestTasks = destTasks.map((task, idx) => ({
+        ...task,
+        position: idx,
+      }));
+
+      const sourceTasks = [...grouped[sourceStatus]]
+        .filter((t) => t.id !== current.id)
+        .map((task, idx) => ({ ...task, position: idx }));
+
+      const updatedMap = new Map<number, BoardTask>();
+      updatedDestTasks.forEach((t) => updatedMap.set(t.id, t));
+      sourceTasks.forEach((t) => updatedMap.set(t.id, t));
+
+      const finalPosition = updatedDestTasks.findIndex((t) => t.id === current.id);
+      const nextTasks = tasks.map((t) => updatedMap.get(t.id) || t);
+
+      onReorder(nextTasks);
+      await onPersist(
+        { ...movedTask, position: finalPosition },
+        destinationStatus,
+        finalPosition
+      );
+    }
   };
 
   const activeTask = activeId ? tasks.find((task) => task.id === activeId) : null;
@@ -277,17 +420,17 @@ export function KanbanBoard({
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragStart={({ active }) => setActiveId(Number(active.id))}
-        onDragOver={handleDragOver}
         onDragCancel={() => setActiveId(null)}
         onDragEnd={handleDragEnd}
       >
         <div className="grid grid-cols-4 gap-3.5 max-[800px]:grid-cols-2 max-[480px]:grid-cols-1">
           {columns.map((column) => (
-            <Column 
-              key={column.id} 
-              {...column} 
-              tasks={grouped[column.id]} 
-              onTaskClick={setSelectedTask} 
+            <Column
+              key={column.id}
+              {...column}
+              tasks={grouped[column.id]}
+              categoriesMap={categoriesMap}
+              onTaskClick={setSelectedTask}
             />
           ))}
         </div>
@@ -296,71 +439,114 @@ export function KanbanBoard({
         {mounted &&
           createPortal(
             <DragOverlay dropAnimation={dropAnimation}>
-              {activeTask ? <TaskCardUI task={activeTask} isOverlay /> : null}
+              {activeTask ? (
+                <TaskCardUI
+                  task={activeTask}
+                  categoryName={
+                    activeTask.category?.name ||
+                    (activeTask.category_id ? categoriesMap.get(activeTask.category_id) : undefined)
+                  }
+                  isOverlay
+                />
+              ) : null}
             </DragOverlay>,
             document.body
           )}
-          
+
         {/* Task Detail Modal Portal */}
         {mounted && selectedTask &&
           createPortal(
-            <div 
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm transition-opacity"
-              onClick={() => setSelectedTask(null)} // Close when clicking background
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md transition-opacity"
+              onClick={() => setSelectedTask(null)}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-task-title"
             >
-              <div 
-                className="glass-panel w-full max-w-md rounded-2xl bg-[#16132a] p-6 shadow-2xl border border-white/10"
-                onClick={(e) => e.stopPropagation()} // Prevent click from closing modal
+              <div
+                className="glass-panel w-full max-w-lg rounded-2xl bg-[#0c122b]/95 p-6 shadow-2xl border border-white/10"
+                onClick={(e) => e.stopPropagation()}
               >
-                <div className="mb-4 flex items-start justify-between">
-                  <h2 className="text-lg font-semibold text-[#f8f7ff]">{selectedTask.title}</h2>
-                  <button 
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <h2 id="modal-task-title" className="text-lg font-bold text-[#f8f7ff] break-words">
+                    {selectedTask.title}
+                  </h2>
+                  <button
                     onClick={() => setSelectedTask(null)}
-                    className="ml-4 flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-[#9898ad] transition-colors hover:bg-white/20 hover:text-white"
+                    aria-label="Close modal"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-[#9898ad] transition-colors hover:bg-white/20 hover:text-white"
                   >
                     ✕
                   </button>
                 </div>
-                
+
                 <div className="space-y-4">
-                  <div className="flex gap-6 rounded-lg bg-black/20 p-3">
+                  <div className="grid grid-cols-3 gap-3 rounded-xl border border-white/[0.08] bg-black/30 p-3 max-[480px]:grid-cols-1">
                     <div>
-                      <span className="mb-1 block text-[0.65rem] text-[#9aa4c7] uppercase tracking-wider">Status</span>
-                      <span className="text-sm text-[#f8f7ff] capitalize">
-                        {columns.find(c => c.id === getStatus(selectedTask))?.label || getStatus(selectedTask)}
+                      <span className="mb-1 block text-[0.65rem] font-bold uppercase tracking-wider text-[#9aa4c7]">
+                        Status
+                      </span>
+                      <span className="text-sm font-medium text-[#f8f7ff] capitalize">
+                        {columns.find((c) => c.id === getStatus(selectedTask))?.label || getStatus(selectedTask)}
                       </span>
                     </div>
+
                     <div>
-                      <span className="mb-1 block text-[0.65rem] text-[#9aa4c7] uppercase tracking-wider">Priority</span>
+                      <span className="mb-1 block text-[0.65rem] font-bold uppercase tracking-wider text-[#9aa4c7]">
+                        Priority
+                      </span>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span
-                          className={`h-2 w-2 rounded-full shadow-[0_0_10px_currentColor] ${
+                          className={`h-2 w-2 rounded-full shadow-[0_0_8px_currentColor] ${
                             selectedTask.priority === 'High'
                               ? 'bg-rose-400 text-rose-400'
                               : selectedTask.priority === 'Medium'
                               ? 'bg-amber-300 text-amber-300'
                               : selectedTask.priority === 'Low'
-                              ? 'bg-neon-lime text-neon-lime'
+                              ? 'bg-emerald-400 text-emerald-400'
                               : 'bg-[#9898ad]'
                           }`}
                         />
-                        <span className="text-sm text-[#f8f7ff]">{selectedTask.priority || 'None'}</span>
+                        <span className="text-sm text-[#f8f7ff] font-medium">{selectedTask.priority || 'None'}</span>
                       </div>
+                    </div>
+
+                    <div>
+                      <span className="mb-1 block text-[0.65rem] font-bold uppercase tracking-wider text-[#9aa4c7]">
+                        Category
+                      </span>
+                      <span className="text-sm font-medium text-cyan-300">
+                        {selectedTask.category?.name ||
+                          (selectedTask.category_id ? categoriesMap.get(selectedTask.category_id) : 'Uncategorized') ||
+                          'Uncategorized'}
+                      </span>
                     </div>
                   </div>
 
                   {selectedTask.due_date && (
-                    <div>
-                      <span className="mb-1 block text-[0.65rem] text-[#9aa4c7] uppercase tracking-wider">Due Date</span>
-                      <p className="text-sm text-[#f8f7ff]">
-                        {new Date(selectedTask.due_date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    <div className="rounded-xl border border-white/[0.08] bg-black/20 p-3">
+                      <span className="mb-1 block text-[0.65rem] font-bold uppercase tracking-wider text-[#9aa4c7]">
+                        Due Date
+                      </span>
+                      <p className="text-sm text-[#f8f7ff] font-medium">
+                        {new Date(selectedTask.due_date).toLocaleDateString(undefined, {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                        {isDateOverdue(selectedTask.due_date, selectedTask.is_completed || selectedTask.status === 'done') && (
+                          <span className="ml-2 font-bold text-rose-400">(Overdue)</span>
+                        )}
                       </p>
                     </div>
                   )}
 
                   <div>
-                    <span className="mb-1 block text-[0.65rem] text-[#9aa4c7] uppercase tracking-wider">Description</span>
-                    <div className="rounded-lg bg-black/10 p-3 text-sm text-[#9898ad] min-h-[80px]">
+                    <span className="mb-1 block text-[0.65rem] font-bold uppercase tracking-wider text-[#9aa4c7]">
+                      Description
+                    </span>
+                    <div className="rounded-xl border border-white/[0.08] bg-black/20 p-3.5 text-sm text-[#cbd3ee] min-h-[90px]">
                       {selectedTask.description ? (
                         <p className="whitespace-pre-wrap leading-relaxed">{selectedTask.description}</p>
                       ) : (
@@ -369,11 +555,11 @@ export function KanbanBoard({
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="mt-6 flex justify-end">
-                  <button 
+                  <button
                     onClick={() => setSelectedTask(null)}
-                    className="rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20"
+                    className="glass-button px-5 py-2.5 text-sm font-medium"
                   >
                     Close
                   </button>
