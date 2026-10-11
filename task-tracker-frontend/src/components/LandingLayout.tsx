@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { SiteHeader } from './SiteHeader';
+import { BrandLogo } from './BrandLogo';
 
 export function Reveal({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
@@ -44,8 +45,8 @@ export function LandingLayout({
       {children}
       <footer className="mx-auto flex max-w-[1180px] items-end justify-between px-7 pb-10 text-[0.75rem] text-[#9898ad] max-[800px]:items-start max-[800px]:flex-col max-[800px]:gap-6">
         <div>
-          <Link href="/" className="inline-flex items-center gap-2.5 text-[1.1rem] font-bold tracking-[-0.03em] text-[#f8f7ff]"><span className="grid h-9 w-9 place-items-center rounded-xl bg-[linear-gradient(135deg,#9b6cff,#27d7ff)] text-white shadow-neon">T</span><span>Taskflow</span></Link>
-          <p>Make space for the work that matters.</p>
+          <BrandLogo href="/" />
+          <p className="mt-1">Make space for the work that matters.</p>
         </div>
         <span>© 2026 Taskflow. Built for focused teams.</span>
       </footer>

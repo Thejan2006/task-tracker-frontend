@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { SiteHeader } from '@/components/SiteHeader';
+import { BrandLogo } from '@/components/BrandLogo';
 import { Reveal } from '@/components/LandingLayout';
 import { AuroraBackground } from '@/components/velora/aurora-background';
 
@@ -53,7 +54,7 @@ export default function Home() {
       </section>
       <section className="mx-auto max-w-[1180px] px-7 py-[95px] max-[800px]:py-[65px]"><Reveal><span className="eyebrow">Less managing. More making.</span><h2 className="my-[18px] mb-[50px] text-[clamp(2.4rem,4vw,4rem)] leading-[1.05] tracking-[-0.065em]">Everything your team needs<br /><span className="bg-[linear-gradient(90deg,#9b6cff,#27d7ff)] bg-clip-text text-transparent">to move as one.</span></h2></Reveal><div className="grid grid-cols-3 gap-[18px] max-[800px]:grid-cols-1">{features.map(([number, title, text]) => <Reveal key={number} className="glass-panel relative min-h-[250px] rounded-2xl p-[27px] transition hover:-translate-y-1.5"><span className="eyebrow">{number}</span><h3 className="my-[45px] mb-2.5 text-[1.15rem]">{title}</h3><p className="text-[0.85rem] leading-[1.7] text-[#9aa4c7]">{text}</p><span className="absolute right-[25px] top-[25px] text-neon-cyan">↗</span></Reveal>)}</div></section>
       <section className="mx-auto mb-[90px] mt-[30px] max-w-[1180px] rounded-[22px] border border-white/10 bg-[radial-gradient(circle_at_50%_0,rgba(139,92,246,0.2),transparent_55%)] px-[30px] py-20 text-center"><Reveal><h2 className="mb-5 text-[clamp(2.4rem,4vw,4rem)] leading-[1.05] tracking-[-0.065em]">Ready to find your flow?</h2><p className="mb-7 text-[#9898ad]">Join thousands of teams building their next big thing with less friction.</p><Link href="/users/create" className="inline-flex items-center justify-center gap-2.5 rounded-[10px] bg-[linear-gradient(135deg,#8b5cf6,#6d28d9)] px-5 py-3 text-[0.88rem] font-semibold text-white shadow-[0_8px_25px_rgba(139,92,246,0.25)] transition hover:-translate-y-0.5">Get started free <span>→</span></Link></Reveal></section>
-      <footer className="mx-auto flex max-w-[1180px] items-end justify-between px-7 pb-10 text-[0.75rem] text-[#9898ad] max-[800px]:items-start max-[800px]:flex-col max-[800px]:gap-6"><div><Link href="/" className="inline-flex items-center gap-2.5 text-[1.1rem] font-bold tracking-[-0.03em] text-[#f8f7ff]"><span className="grid h-[29px] w-[29px] place-items-center rounded-[9px] bg-[linear-gradient(135deg,#8b5cf6,#c084fc)] text-white shadow-[0_0_22px_rgba(139,92,246,0.45)]">T</span><span>Taskflow</span></Link><p>Make space for the work that matters.</p></div><span>© 2026 Taskflow. Built for focused teams.</span></footer>
+      <footer className="mx-auto flex max-w-[1180px] items-end justify-between px-7 pb-10 text-[0.75rem] text-[#9898ad] max-[800px]:items-start max-[800px]:flex-col max-[800px]:gap-6"><div><BrandLogo href="/" /><p className="mt-1">Make space for the work that matters.</p></div><span>© 2026 Taskflow. Built for focused teams.</span></footer>
       </div>
     </div>
   );
