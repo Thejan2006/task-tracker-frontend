@@ -22,10 +22,6 @@
   --brand-via: oklch(0.707 0.165 255);
   --brand-to: oklch(0.746 0.16 233);
   --brand-accent: #9b6cff;
-  --brand: oklch(0.546 0.245 263);
-  --brand-from: oklch(0.546 0.245 263);
-  --brand-via: oklch(0.623 0.214 260);
-  --brand-to: oklch(0.685 0.169 237);
 }
 
 * {
@@ -67,6 +63,7 @@ body::after { right: -13rem; bottom: -18rem; width: 42rem; height: 42rem; backgr
   .glass-button:hover { border-color: rgba(39,215,255,.52); background: rgba(39,215,255,.10); box-shadow: 0 0 18px rgba(39,215,255,.14); }
   .neon-input { width: 100%; border: 1px solid var(--line); border-radius: .8rem; background: rgba(3, 7, 24, .48); color: var(--ink); outline: none; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
   .neon-input:focus { border-color: var(--cyan); background: rgba(6, 14, 38, .8); box-shadow: 0 0 0 4px rgba(39,215,255,.10), 0 0 18px rgba(39,215,255,.13); }
+  .neon-input option { background-color: #0d122b; color: #f6f7ff; }
   .eyebrow { color: #8ce9ff; font-size: .68rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
   .grid-overlay { background-image: linear-gradient(rgba(143, 168, 255, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(143, 168, 255, .045) 1px, transparent 1px); background-size: 42px 42px; }
 }
@@ -82,6 +79,38 @@ button {
 
 button:disabled {
   cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 ::selection {
@@ -116,6 +145,7 @@ button:disabled {
 .theme-light .glass-panel { background: linear-gradient(135deg, rgba(255,255,255,.84), rgba(239,246,255,.55)); box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 18px 50px rgba(45, 70, 125, .12); }
 .theme-light .glass-button { background: rgba(255,255,255,.66); }
 .theme-light .neon-input { background: rgba(255,255,255,.78); color: var(--ink); }
+.theme-light .neon-input option { background-color: #ffffff; color: #15213d; }
 .theme-light .home-video-overlay { background: linear-gradient(115deg, rgba(237,244,255,.84), rgba(237,244,255,.56) 45%, rgba(237,244,255,.74)); }
 .theme-light .neon-page [class*="text-[#f8f7ff]"] { color: var(--ink) !important; }
 .theme-light .neon-page [class*="text-[#9898ad]"] { color: var(--muted) !important; }
