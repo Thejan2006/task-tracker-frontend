@@ -17,6 +17,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { getDeadlineStatus } from '@/lib/utils';
 
 export type TaskStatus = 'todo' | 'in_progress' | 'review' | 'done';
 
@@ -31,11 +32,11 @@ export interface BoardTask {
   due_date?: string | null;
 }
 
-const columns: { id: TaskStatus; label: string; color: string }[] = [
-  { id: 'todo', label: 'To Do', color: '#94a3b8' },
-  { id: 'in_progress', label: 'In Progress', color: '#8b5cf6' },
-  { id: 'review', label: 'Review', color: '#f59e0b' },
-  { id: 'done', label: 'Done', color: '#22c55e' },
+const columns: { id: TaskStatus; label: string }[] = [
+  { id: 'todo', label: 'To Do' },
+  { id: 'in_progress', label: 'In Progress' },
+  { id: 'review', label: 'Review' },
+  { id: 'done', label: 'Done' },
 ];
 
 function getStatus(task: BoardTask): TaskStatus {
@@ -43,46 +44,86 @@ function getStatus(task: BoardTask): TaskStatus {
   return task.is_completed ? 'done' : 'todo';
 }
 
-/* --- Presentation Card (Used inside regular list & DragOverlay) --- */
 function TaskCardUI({ task, isOverlay = false, onClick }: { task: BoardTask; isOverlay?: boolean; onClick?: () => void }) {
+  const deadline = getDeadlineStatus(task.due_date, task.is_completed);
+
   return (
     <article
       onClick={onClick}
-      className={`glass-panel mb-[9px] select-none rounded-xl p-3.5 transition-shadow ${
+      className={`group relative mb-2.5 select-none rounded-xl border p-3.5 transition-all ${
         isOverlay
-          ? 'cursor-grabbing shadow-[0_12px_30px_rgba(139,92,246,0.3)] border-[#8b5cf6] bg-[#16132a]'
-          : 'cursor-grab hover:-translate-y-0.5 active:cursor-grabbing'
+          ? 'cursor-grabbing border-[var(--text-main)] bg-[var(--card-bg)] shadow-2xl scale-105'
+          : 'cursor-grab border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--text-main)] shadow-xs active:cursor-grabbing'
       }`}
     >
-      <div className="flex min-h-2.5 items-center gap-1.5">
-        <span
-          className={`h-2 w-2 rounded-full shadow-[0_0_10px_currentColor] ${
-            task.priority === 'High'
-              ? 'bg-rose-400 text-rose-400'
-              : task.priority === 'Medium'
-              ? 'bg-amber-300 text-amber-300'
-              : task.priority === 'Low'
-              ? 'bg-neon-lime text-neon-lime'
-              : 'bg-[#9898ad]'
-          }`}
-        />
-        {task.priority && <small className="text-[0.6rem] text-[#9aa4c7]">{task.priority}</small>}
+      <div className="flex items-center justify-between gap-2">
+        {task.priority ? (
+          <span
+            className={`pill-badge text-[0.65rem] ${
+              task.priority === 'High'
+                ? 'bg-red-500 text-white dark:bg-red-600 font-bold'
+                : task.priority === 'Medium'
+                ? 'pill-medium'
+                : 'pill-low'
+            }`}
+          >
+            {task.priority === 'High' && (
+              <span className="h-1.5 w-1.5 rounded-full bg-white mr-1 inline-block" />
+            )}
+            {task.priority}
+          </span>
+        ) : (
+          <span className="text-[0.65rem] text-[var(--text-subtle)] font-mono">#{task.id}</span>
+        )}
+
+        {task.is_completed && (
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] text-[9px] font-bold">
+            ✓
+          </span>
+        )}
       </div>
-      <h4 className="my-2.5 mb-[5px] text-[0.8rem] leading-[1.3] text-[#f8f7ff]">{task.title}</h4>
-      {task.description && <p className="m-0 line-clamp-2 text-[0.67rem] leading-[1.4] text-[#9898ad]">{task.description}</p>}
-      {task.due_date && <time className="mt-2.5 block text-[0.6rem] text-[#9898ad]">Due {new Date(task.due_date).toLocaleDateString()}</time>}
+
+      <h4 className="mt-2 text-xs font-semibold text-[var(--text-main)] leading-snug">
+        {task.title}
+      </h4>
+
+      {task.description && (
+        <p className="mt-1 line-clamp-2 text-[0.68rem] leading-relaxed text-[var(--text-muted)]">
+          {task.description}
+        </p>
+      )}
+
+      {/* Due date with deadline urgency colors */}
+      {task.due_date && (
+        <div className="mt-2.5 flex items-center justify-between gap-1 text-[0.68rem]">
+          {deadline.status === 'urgent-red' ? (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md font-bold bg-red-100 text-red-800 border border-red-300 dark:bg-red-950/50 dark:text-red-300 dark:border-red-700/60 text-[0.65rem]">
+              <span>⚠️</span>
+              <span>{deadline.label}</span>
+            </span>
+          ) : deadline.status === 'warning-yellow' ? (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md font-bold bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-700/60 text-[0.65rem]">
+              <span>⏱</span>
+              <span>{deadline.label}</span>
+            </span>
+          ) : (
+            <span className="text-[var(--text-subtle)] font-medium">
+              📅 {new Date(task.due_date).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+      )}
     </article>
   );
 }
 
-/* --- Draggable Sortable Card Wrapper --- */
 function SortableCard({ task, onClick }: { task: BoardTask; onClick?: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
 
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
-    opacity: isDragging ? 0.3 : 1,
+    opacity: isDragging ? 0.25 : 1,
   };
 
   return (
@@ -92,44 +133,44 @@ function SortableCard({ task, onClick }: { task: BoardTask; onClick?: () => void
   );
 }
 
-/* --- Droppable Column Container --- */
-function Column({ id, label, color, tasks, onTaskClick }: { id: TaskStatus; label: string; color: string; tasks: BoardTask[]; onTaskClick?: (task: BoardTask) => void }) {
+function Column({
+  id,
+  label,
+  tasks,
+  onTaskClick,
+}: {
+  id: TaskStatus;
+  label: string;
+  tasks: BoardTask[];
+  onTaskClick?: (task: BoardTask) => void;
+}) {
   const { setNodeRef, isOver } = useDroppable({ id });
+
   return (
     <section
       ref={setNodeRef}
-      className={`min-w-0 rounded-2xl border transition-colors ${
-        isOver ? 'border-neon-cyan bg-neon-cyan/10 shadow-neon' : 'border-white/10 bg-black/10'
+      className={`flex flex-col rounded-2xl border p-3.5 transition-colors ${
+        isOver
+          ? 'border-[var(--text-main)] bg-[var(--active-highlight)]'
+          : 'border-[var(--card-border)] bg-[var(--canvas-bg)]'
       }`}
     >
-      <header className="flex justify-between px-3.5 pb-2.5 pt-[15px]">
-        <span className="flex items-center gap-[7px] text-[0.76rem] font-bold">
-          <i
-            className={`h-[7px] w-[7px] rounded-full ${
-              id === 'todo'
-                ? 'bg-slate-400'
-                : id === 'in_progress'
-                ? 'bg-violet-500'
-                : id === 'review'
-                ? 'bg-amber-500'
-                : 'bg-green-500'
-            }`}
-          />
-          {label}
-        </span>
-        <b className="grid h-[21px] min-w-[21px] place-items-center rounded-full bg-white/10 text-[0.65rem] text-[#9898ad]">
+      <header className="mb-3 flex items-center justify-between px-1.5 py-1">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-main)]">{label}</h3>
+        <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full border border-[var(--card-border)] bg-[var(--card-bg)] px-1.5 text-xs font-semibold text-[var(--text-muted)]">
           {tasks.length}
-        </b>
+        </span>
       </header>
+
       <SortableContext items={tasks.map((task) => task.id)} strategy={verticalListSortingStrategy}>
-        <div className="min-h-[160px] px-[9px] pb-2.5 pt-[5px] max-[480px]:min-h-[110px]">
+        <div className="min-h-[160px] flex-1">
           {tasks.map((task) => (
             <SortableCard key={task.id} task={task} onClick={() => onTaskClick?.(task)} />
           ))}
           {tasks.length === 0 && (
-            <span className="grid min-h-[100px] place-items-center rounded-lg border border-dashed border-white/10 text-[0.7rem] text-[#9898ad]">
+            <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-[var(--card-border)] text-xs text-[var(--text-subtle)]">
               Drop tasks here
-            </span>
+            </div>
           )}
         </div>
       </SortableContext>
@@ -137,14 +178,9 @@ function Column({ id, label, color, tasks, onTaskClick }: { id: TaskStatus; labe
   );
 }
 
-/* --- Smooth Drop Animation Config --- */
 const dropAnimation: DropAnimation = {
   sideEffects: defaultDropAnimationSideEffects({
-    styles: {
-      active: {
-        opacity: '0.4',
-      },
-    },
+    styles: { active: { opacity: '0.4' } },
   }),
 };
 
@@ -158,8 +194,6 @@ export function KanbanBoard({
   onPersist: (task: BoardTask, status: TaskStatus, position: number) => Promise<void>;
 }) {
   const [mounted, setMounted] = useState(false);
-  
-  // State for the Pop-up Modal
   const [selectedTask, setSelectedTask] = useState<BoardTask | null>(null);
 
   useEffect(() => {
@@ -168,42 +202,16 @@ export function KanbanBoard({
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5, // Allows normal clicks to pass through to open the modal
-      },
+      activationConstraint: { distance: 5 },
     })
   );
 
   const [activeId, setActiveId] = useState<number | null>(null);
 
   const grouped = useMemo(() => {
-    const getPriorityWeight = (priority?: string | null) => {
-      if (priority === 'High') return 3;
-      if (priority === 'Medium') return 2;
-      if (priority === 'Low') return 1;
-      return 0; 
-    };
-
     return columns.reduce<Record<TaskStatus, BoardTask[]>>(
       (result, column) => {
-        result[column.id] = tasks
-          .filter((task) => getStatus(task) === column.id)
-          .sort((a, b) => {
-            const weightA = getPriorityWeight(a.priority);
-            const weightB = getPriorityWeight(b.priority);
-            
-            if (weightA !== weightB) {
-              return weightB - weightA; 
-            }
-
-            if (a.due_date && b.due_date) {
-              return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
-            }
-            if (a.due_date) return -1;
-            if (b.due_date) return 1;  
-
-            return (a.position ?? a.id) - (b.position ?? b.id);
-          });
+        result[column.id] = tasks.filter((task) => getStatus(task) === column.id);
         return result;
       },
       { todo: [], in_progress: [], review: [], done: [] }
@@ -281,18 +289,17 @@ export function KanbanBoard({
         onDragCancel={() => setActiveId(null)}
         onDragEnd={handleDragEnd}
       >
-        <div className="grid grid-cols-4 gap-3.5 max-[800px]:grid-cols-2 max-[480px]:grid-cols-1">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {columns.map((column) => (
-            <Column 
-              key={column.id} 
-              {...column} 
-              tasks={grouped[column.id]} 
-              onTaskClick={setSelectedTask} 
+            <Column
+              key={column.id}
+              {...column}
+              tasks={grouped[column.id]}
+              onTaskClick={setSelectedTask}
             />
           ))}
         </div>
 
-        {/* Drag Overlay Portal */}
         {mounted &&
           createPortal(
             <DragOverlay dropAnimation={dropAnimation}>
@@ -300,81 +307,72 @@ export function KanbanBoard({
             </DragOverlay>,
             document.body
           )}
-          
-        {/* Task Detail Modal Portal */}
-        {mounted && selectedTask &&
+
+        {mounted &&
+          selectedTask &&
           createPortal(
-            <div 
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm transition-opacity"
-              onClick={() => setSelectedTask(null)} // Close when clicking background
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+              onClick={() => setSelectedTask(null)}
             >
-              <div 
-                className="glass-panel w-full max-w-md rounded-2xl bg-[#16132a] p-6 shadow-2xl border border-white/10"
-                onClick={(e) => e.stopPropagation()} // Prevent click from closing modal
+              <div
+                className="organizo-card w-full max-w-lg p-6 sm:p-8 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
               >
-                <div className="mb-4 flex items-start justify-between">
-                  <h2 className="text-lg font-semibold text-[#f8f7ff]">{selectedTask.title}</h2>
-                  <button 
+                <div className="flex items-start justify-between border-b border-[var(--card-border)] pb-4">
+                  <div>
+                    <span className="eyebrow">Task Details</span>
+                    <h2 className="mt-1 text-base font-bold text-[var(--text-main)]">{selectedTask.title}</h2>
+                  </div>
+                  <button
                     onClick={() => setSelectedTask(null)}
-                    className="ml-4 flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-[#9898ad] transition-colors hover:bg-white/20 hover:text-white"
+                    className="text-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-main)]"
                   >
                     ✕
                   </button>
                 </div>
-                
-                <div className="space-y-4">
-                  <div className="flex gap-6 rounded-lg bg-black/20 p-3">
-                    <div>
-                      <span className="mb-1 block text-[0.65rem] text-[#9aa4c7] uppercase tracking-wider">Status</span>
-                      <span className="text-sm text-[#f8f7ff] capitalize">
-                        {columns.find(c => c.id === getStatus(selectedTask))?.label || getStatus(selectedTask)}
+
+                <div className="mt-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-xl bg-[var(--canvas-bg)] border border-[var(--card-border)]">
+                      <span className="text-[0.65rem] text-[var(--text-subtle)] uppercase tracking-wider block">Stage</span>
+                      <span className="text-xs font-semibold text-[var(--text-main)] capitalize">
+                        {columns.find((c) => c.id === getStatus(selectedTask))?.label || getStatus(selectedTask)}
                       </span>
                     </div>
-                    <div>
-                      <span className="mb-1 block text-[0.65rem] text-[#9aa4c7] uppercase tracking-wider">Priority</span>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span
-                          className={`h-2 w-2 rounded-full shadow-[0_0_10px_currentColor] ${
-                            selectedTask.priority === 'High'
-                              ? 'bg-rose-400 text-rose-400'
-                              : selectedTask.priority === 'Medium'
-                              ? 'bg-amber-300 text-amber-300'
-                              : selectedTask.priority === 'Low'
-                              ? 'bg-neon-lime text-neon-lime'
-                              : 'bg-[#9898ad]'
-                          }`}
-                        />
-                        <span className="text-sm text-[#f8f7ff]">{selectedTask.priority || 'None'}</span>
-                      </div>
+
+                    <div className="p-3 rounded-xl bg-[var(--canvas-bg)] border border-[var(--card-border)]">
+                      <span className="text-[0.65rem] text-[var(--text-subtle)] uppercase tracking-wider block">Priority</span>
+                      <span className="text-xs font-semibold text-[var(--text-main)]">
+                        {selectedTask.priority || 'Normal'}
+                      </span>
                     </div>
                   </div>
 
                   {selectedTask.due_date && (
-                    <div>
-                      <span className="mb-1 block text-[0.65rem] text-[#9aa4c7] uppercase tracking-wider">Due Date</span>
-                      <p className="text-sm text-[#f8f7ff]">
-                        {new Date(selectedTask.due_date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                      </p>
+                    <div className="p-3 rounded-xl bg-[var(--canvas-bg)] border border-[var(--card-border)]">
+                      <span className="text-[0.65rem] text-[var(--text-subtle)] uppercase tracking-wider block">Due Date</span>
+                      <span className="text-xs font-semibold text-[var(--text-main)]">
+                        {new Date(selectedTask.due_date).toLocaleDateString(undefined, {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </span>
                     </div>
                   )}
 
-                  <div>
-                    <span className="mb-1 block text-[0.65rem] text-[#9aa4c7] uppercase tracking-wider">Description</span>
-                    <div className="rounded-lg bg-black/10 p-3 text-sm text-[#9898ad] min-h-[80px]">
-                      {selectedTask.description ? (
-                        <p className="whitespace-pre-wrap leading-relaxed">{selectedTask.description}</p>
-                      ) : (
-                        <p className="italic text-white/30">No description provided for this task.</p>
-                      )}
-                    </div>
+                  <div className="p-3 rounded-xl bg-[var(--canvas-bg)] border border-[var(--card-border)]">
+                    <span className="text-[0.65rem] text-[var(--text-subtle)] uppercase tracking-wider block mb-1">Description</span>
+                    <p className="text-xs text-[var(--text-muted)] whitespace-pre-wrap leading-relaxed">
+                      {selectedTask.description || 'No description provided.'}
+                    </p>
                   </div>
                 </div>
-                
-                <div className="mt-6 flex justify-end">
-                  <button 
-                    onClick={() => setSelectedTask(null)}
-                    className="rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/20"
-                  >
+
+                <div className="mt-5 flex justify-end">
+                  <button onClick={() => setSelectedTask(null)} className="btn-ghost-mono text-xs">
                     Close
                   </button>
                 </div>
