@@ -5,9 +5,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ThemeControls } from '@/components/ThemeControls';
+import { GoogleAuthButton } from '@/components/auth/GoogleAuthButton';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
-const GOOGLE_LOGIN_PATH = process.env.NEXT_PUBLIC_GOOGLE_LOGIN_PATH ?? '/auth/google';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -47,12 +47,6 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGoogleLogin = () => {
-    window.location.assign(
-      `${API_URL}${GOOGLE_LOGIN_PATH}?redirect_uri=${encodeURIComponent(`${window.location.origin}/auth/callback`)}`
-    );
   };
 
   return (
