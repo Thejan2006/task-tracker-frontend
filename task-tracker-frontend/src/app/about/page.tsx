@@ -1,7 +1,83 @@
-import { LandingLayout, Reveal } from '@/components/LandingLayout';
+import { PublicLayout, Reveal } from '@/components/layout/PublicLayout';
 
-const principles = [['01', 'Clarity over clutter', 'One shared view of what matters now, with no status-chasing or hidden handoffs.'], ['02', 'Progress with context', 'Signals, not noise. Every task tells the story of where the work is going.'], ['03', 'Human by default', 'A thoughtful workspace that keeps teams focused without making work feel mechanical.']];
+const values = [
+  {
+    title: 'Clarity Over Visual Clutter',
+    desc: 'Workspaces should never distract you from the work itself. We design high-contrast, monochrome interactions that feel immediate and focused.',
+    icon: '01'
+  },
+  {
+    title: 'Integrated Time & Calendar',
+    desc: 'Scheduling tasks on dates and tracking their execution time should be effortless. We treat calendars and timers as first-class citizens.',
+    icon: '02'
+  },
+  {
+    title: 'High-Contrast Accessibility',
+    desc: 'Text must always be readable in both dark and light modes. We test every element against strict contrast guidelines.',
+    icon: '03'
+  },
+];
 
 export default function AboutPage() {
-  return <LandingLayout eyebrow="Our north star" title={<>Work better, <span>together.</span></>} description="Taskflow brings calm clarity to ambitious teams that want their best work to feel less chaotic."><section className="mx-auto max-w-[1180px] px-7 py-[95px] max-[800px]:py-[65px]"><Reveal className="glass-panel grid grid-cols-[.8fr_1.2fr] gap-12 rounded-3xl p-8 max-[800px]:grid-cols-1 max-[800px]:p-6"><div><span className="eyebrow">The Taskflow point of view</span><h2 className="mt-5 text-[clamp(2.4rem,4vw,4rem)] leading-[1.05] tracking-[-.065em]">Clarity is a competitive advantage.</h2></div><div className="space-y-5 text-[1.02rem] leading-[1.8] text-[#b4bdd8]"><p>Busy work should never obscure meaningful work. We designed Taskflow around the moments that decide whether a team moves forward: choosing the next priority, seeing the real state of a project, and making a confident handoff.</p><p>It is a calm, connected command center for the people turning ideas into outcomes.</p></div></Reveal><Reveal className="mt-[65px]"><div className="mb-6 flex items-end justify-between"><div><span className="eyebrow">Built around better work</span><h2 className="mt-3 text-3xl tracking-[-.05em]">A system with a point of view.</h2></div><span className="hidden text-sm text-[#9aa4c7] sm:block">Simple by design · powerful in practice</span></div></Reveal><div className="grid grid-cols-3 gap-[18px] max-[800px]:grid-cols-1">{principles.map(([number, title, text]) => <Reveal className="glass-panel relative min-h-[260px] rounded-2xl p-7" key={title}><span className="eyebrow">{number}</span><span className="absolute right-6 top-6 text-2xl text-neon-cyan">✦</span><h3 className="mt-14 text-xl">{title}</h3><p className="mt-3 text-sm leading-7 text-[#9aa4c7]">{text}</p></Reveal>)}</div><Reveal className="mt-[70px] grid grid-cols-[1.05fr_.95fr] gap-5 max-[800px]:grid-cols-1"><div className="glass-panel rounded-3xl p-8"><span className="eyebrow">A calmer rhythm</span><h2 className="mt-4 max-w-lg text-3xl leading-tight tracking-[-.05em]">Your team does its best work when the next move is obvious.</h2><div className="mt-8 grid grid-cols-3 gap-3 text-center"><div><b className="block text-3xl text-neon-cyan">2k+</b><span className="text-xs text-[#9aa4c7]">teams in flow</span></div><div><b className="block text-3xl text-[#b993ff]">98%</b><span className="text-xs text-[#9aa4c7]">recommend us</span></div><div><b className="block text-3xl text-neon-lime">4.9</b><span className="text-xs text-[#9aa4c7]">average rating</span></div></div></div><div className="glass-panel rounded-3xl p-8"><span className="eyebrow">The promise</span><p className="mt-5 text-xl leading-8 text-[#e5e9ff]">“Give every person a clear path from intention to impact.”</p><div className="mt-10 flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-full bg-neon-violet/20 text-neon-violet">T</span><div><b className="block text-sm">The Taskflow team</b><span className="text-xs text-[#9aa4c7]">Building better ways to move work</span></div></div></div></Reveal></section></LandingLayout>;
+  return (
+    <PublicLayout>
+      <div className="mx-auto max-w-6xl px-6 py-16 md:py-24">
+        {/* Header */}
+        <div className="text-center">
+          <span className="eyebrow">Our Philosophy</span>
+          <h1 className="mt-4 text-4xl font-extrabold sm:text-6xl text-[var(--text-main)]">
+            A calmer way to move work forward.
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-base text-[var(--text-muted)]">
+            Organizo was created to replace visual noise with pure, high-contrast task tracking and integrated calendar management.
+          </p>
+        </div>
+
+        {/* Story Section */}
+        <Reveal className="mt-16">
+          <div className="glass-card grid gap-8 p-8 sm:p-12 lg:grid-cols-2 lg:items-center">
+            <div>
+              <span className="eyebrow">The Background</span>
+              <h2 className="mt-3 text-2xl font-bold text-[var(--text-main)]">
+                Built for builders who value focus over rainbow dashboards.
+              </h2>
+              <div className="mt-5 space-y-4 text-xs sm:text-sm leading-relaxed text-[var(--text-muted)]">
+                <p>
+                  Most productivity tools overwhelm teams with endless colorful tags, badges, and complicated status charts.
+                </p>
+                <p>
+                  We built Organizo around clean typography, intuitive calendar scheduling, and distraction-free monochrome styling that looks great in any lighting environment.
+                </p>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--canvas-bg)] p-6 text-xs text-[var(--text-main)] space-y-3">
+              <div className="font-mono font-bold text-sm">Organizo Principles</div>
+              <p className="text-[var(--text-muted)] leading-relaxed">
+                &ldquo;Every task has a place in time. Put it on the calendar, measure its momentum, and ship without friction.&rdquo;
+              </p>
+            </div>
+          </div>
+        </Reveal>
+
+        {/* Values Grid */}
+        <section className="mt-20">
+          <div className="text-center">
+            <span className="eyebrow">Core Beliefs</span>
+            <h2 className="mt-2 text-2xl font-bold sm:text-3xl text-[var(--text-main)]">How we design software</h2>
+          </div>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {values.map((v, i) => (
+              <Reveal key={i}>
+                <div className="glass-card flex h-full flex-col p-8">
+                  <span className="font-mono text-xs font-bold text-[var(--text-muted)]">{v.icon}</span>
+                  <h3 className="mt-5 text-base font-bold text-[var(--text-main)]">{v.title}</h3>
+                  <p className="mt-3 text-xs leading-relaxed text-[var(--text-muted)]">{v.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      </div>
+    </PublicLayout>
+  );
 }
