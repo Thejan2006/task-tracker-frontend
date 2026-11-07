@@ -4,8 +4,7 @@ import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { AuthHeader } from '@/components/AuthHeader';
-import { BrandLogo } from '@/components/BrandLogo';
+import { ThemeControls } from '@/components/ThemeControls';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
@@ -41,7 +40,11 @@ export default function CreateUserPage() {
       const response = await fetch(`${API_URL}/users/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), email: email.trim(), password }),
+        body: JSON.stringify({
+          username: username.trim(),
+          email: email.trim(),
+          password,
+        }),
       });
 
       if (!response.ok) {
@@ -63,65 +66,129 @@ export default function CreateUserPage() {
   };
 
   return (
-    <main className="neon-page grid-overlay relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-24">
-      <AuthHeader page="register" />
-      <motion.video autoPlay muted loop playsInline preload="metadata" className="fixed inset-0 z-0 h-screen w-screen object-cover opacity-[0.22] mix-blend-screen" aria-hidden="true" initial={{ scale: 1.08, x: -12, y: -4 }} animate={{ scale: [1.08, 1.15, 1.08], x: [-12, 10, -12], y: [-4, 8, -4] }} transition={{ duration: 18, ease: 'easeInOut', repeat: Infinity }}>
-        {/* Full-page ambient video: served directly from the public folder. */}
-        <source src="/124825-731960032.mp4" type="video/mp4" />
-      </motion.video>
-      <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl" />
-      <div className="absolute -bottom-32 -right-20 h-96 w-96 rounded-full bg-blue-600/20 blur-3xl" />
+    <main className="glass-page flex min-h-screen items-center justify-center p-4 sm:p-6 text-[var(--text-main)]">
+      {/* Top Bar */}
+      <header className="fixed top-0 left-0 right-0 z-20 flex h-16 items-center justify-between px-6">
+        <Link href="/" className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] font-extrabold text-xs shadow-xs">
+            AZ
+          </span>
+          <span className="font-sans text-lg font-bold text-[var(--text-main)]">
+            Organizo
+          </span>
+        </Link>
+        <div className="flex items-center gap-3">
+          <ThemeControls />
+          <Link href="/login" className="text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
+            Sign in →
+          </Link>
+        </div>
+      </header>
 
-      <div className="glass-panel relative grid w-full max-w-5xl overflow-hidden rounded-3xl lg:grid-cols-[0.9fr_1.1fr]">
-        <section className="hidden bg-[radial-gradient(circle_at_20%_20%,rgba(39,215,255,.3),transparent_32%),linear-gradient(145deg,rgba(80,45,185,.82),rgba(8,20,54,.88))] p-10 text-white lg:flex lg:flex-col lg:justify-between">
-          <div>
-            <BrandLogo />
-            <h1 className="mt-16 text-4xl font-bold leading-tight">Turn busy days into clear next steps.</h1>
-            <p className="mt-5 max-w-sm text-blue-50">
-              Organize tasks, group your work, and keep momentum with a workspace built for focus.
-            </p>
+      {/* Register Card */}
+      <motion.div
+        className="glass-card relative z-10 w-full max-w-lg p-8 sm:p-10 shadow-2xl"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+      >
+        <div className="text-center">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] font-extrabold text-sm mb-4 shadow-xs">
+            AZ
           </div>
-          <p className="text-sm text-blue-100">Simple planning. Better progress.</p>
-        </section>
-
-        <section className="bg-[rgba(7,12,32,.5)] p-7 sm:p-10">
-          <div className="mb-8">
-            <p className="eyebrow">Get started</p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight text-white">Create your account</h2>
-            <p className="mt-2 text-sm text-[#9aa4c7]">Join TaskFlow and start managing your work today.</p>
-          </div>
-
-          {error && <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-
-          <form onSubmit={handleCreateUser} className="space-y-4">
-            <div>
-              <label htmlFor="username" className="mb-1.5 block text-sm font-medium text-[#cbd3ee]">Username</label>
-              <input id="username" value={username} onChange={(event) => setUsername(event.target.value)} required minLength={3} autoComplete="username" placeholder="e.g. alex" disabled={isSubmitting} className="neon-input px-4 py-3 disabled:opacity-60" />
-            </div>
-            <div>
-              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-[#cbd3ee]">Email address</label>
-              <input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoComplete="email" placeholder="you@example.com" disabled={isSubmitting} className="neon-input px-4 py-3 disabled:opacity-60" />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-[#cbd3ee]">Password</label>
-                <input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required minLength={8} autoComplete="new-password" placeholder="8+ characters" disabled={isSubmitting} className="neon-input px-4 py-3 disabled:opacity-60" />
-              </div>
-              <div>
-                <label htmlFor="confirm-password" className="mb-1.5 block text-sm font-medium text-[#cbd3ee]">Confirm password</label>
-                <input id="confirm-password" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required minLength={8} autoComplete="new-password" placeholder="Repeat password" disabled={isSubmitting} className="neon-input px-4 py-3 disabled:opacity-60" />
-              </div>
-            </div>
-            <button type="submit" disabled={isSubmitting} className="neon-button w-full px-4 py-3.5 disabled:cursor-not-allowed disabled:opacity-50">
-              {isSubmitting ? 'Creating account...' : 'Create account'}
-            </button>
-          </form>
-
-          <p className="mt-7 text-center text-sm text-[#9aa4c7]">
-            Already have an account? <Link href="/login" className="font-semibold text-neon-cyan hover:text-white">Sign in</Link>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text-main)]">Create your account</h1>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
+            Start organizing your tasks with clean calendar scheduling. Free forever.
           </p>
-        </section>
-      </div>
+        </div>
+
+        {error && (
+          <div className="mt-5 rounded-2xl border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-600 dark:text-red-400">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleCreateUser} className="mt-6 space-y-4">
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-[var(--text-muted)]">
+              Username *
+            </label>
+            <input
+              type="text"
+              required
+              minLength={3}
+              disabled={isSubmitting}
+              placeholder="e.g. alexvance"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="search-pill text-xs py-2.5 rounded-2xl"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-[var(--text-muted)]">
+              Email Address *
+            </label>
+            <input
+              type="email"
+              required
+              disabled={isSubmitting}
+              placeholder="you@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="search-pill text-xs py-2.5 rounded-2xl"
+            />
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-[var(--text-muted)]">
+                Password *
+              </label>
+              <input
+                type="password"
+                required
+                minLength={8}
+                disabled={isSubmitting}
+                placeholder="8+ characters"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="search-pill text-xs py-2.5 rounded-2xl"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-[var(--text-muted)]">
+                Confirm Password *
+              </label>
+              <input
+                type="password"
+                required
+                minLength={8}
+                disabled={isSubmitting}
+                placeholder="Repeat password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="search-pill text-xs py-2.5 rounded-2xl"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="btn-primary-mono w-full justify-center py-2.5 text-xs mt-3"
+          >
+            {isSubmitting ? 'Creating account...' : 'Create Account →'}
+          </button>
+        </form>
+
+        <p className="mt-8 text-center text-xs text-[var(--text-muted)]">
+          Already have an account?{' '}
+          <Link href="/login" className="font-semibold text-[var(--text-main)] hover:underline">
+            Sign in
+          </Link>
+        </p>
+      </motion.div>
     </main>
   );
 }
