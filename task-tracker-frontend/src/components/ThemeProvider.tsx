@@ -6,38 +6,46 @@ export type ThemeMode = 'dark' | 'light';
 
 interface ThemeContextValue {
   mode: ThemeMode;
-  accent: string;
   setMode: (mode: ThemeMode) => void;
-  setAccent: (accent: string) => void;
+  toggle: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setMode] = useState<ThemeMode>('dark');
-  const [accent, setAccent] = useState('#8b5cf6');
+  const [mode, setMode] = useState<ThemeMode>('light');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const storedMode = localStorage.getItem('theme-mode') as ThemeMode | null;
-    const storedAccent = localStorage.getItem('theme-accent');
-    if (storedMode === 'dark' || storedMode === 'light') setMode(storedMode);
-    if (storedAccent) setAccent(storedAccent);
+    setMounted(true);
+    const stored = localStorage.getItem('theme-mode') as ThemeMode | null;
+    if (stored === 'dark' || stored === 'light') {
+      setMode(stored);
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setMode('dark');
+    }
   }, []);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = mode;
-    document.documentElement.classList.toggle('theme-light', mode === 'light');
-    document.documentElement.classList.toggle('theme-dark', mode === 'dark');
-    document.documentElement.classList.toggle('light', mode === 'light');
-    document.documentElement.classList.toggle('dark', mode === 'dark');
-    document.documentElement.classList.remove('accent-violet', 'accent-cyan', 'accent-orange');
-    document.documentElement.classList.add(accent === '#06b6d4' ? 'accent-cyan' : accent === '#f97316' ? 'accent-orange' : 'accent-violet');
-    document.documentElement.style.setProperty('--brand-accent', accent);
-    localStorage.setItem('theme-mode', mode);
-    localStorage.setItem('theme-accent', accent);
-  }, [mode, accent]);
+    if (!mounted) return;
+    const root = document.documentElement;
 
-  const value = useMemo(() => ({ mode, accent, setMode, setAccent }), [mode, accent]);
+    if (mode === 'dark') {
+      root.classList.add('dark', 'theme-dark');
+      root.classList.remove('light', 'theme-light');
+      root.style.colorScheme = 'dark';
+    } else {
+      root.classList.add('light', 'theme-light');
+      root.classList.remove('dark', 'theme-dark');
+      root.style.colorScheme = 'light';
+    }
+
+    localStorage.setItem('theme-mode', mode);
+  }, [mode, mounted]);
+
+  const toggle = () => setMode((m) => (m === 'dark' ? 'light' : 'dark'));
+  const value = useMemo(() => ({ mode, setMode, toggle }), [mode]);
+
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
