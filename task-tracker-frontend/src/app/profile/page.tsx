@@ -2,11 +2,19 @@
 
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ThemeControls } from '@/components/ThemeControls';
-import Link from 'next/link';
+import { OrganizoLayout } from '@/components/layout/OrganizoLayout';
 import toast, { Toaster } from 'react-hot-toast';
 
-interface Profile { id?: number; username?: string; email?: string; name?: string; full_name?: string; bio?: string; avatar_url?: string; }
+interface Profile {
+  id?: number;
+  username?: string;
+  email?: string;
+  name?: string;
+  full_name?: string;
+  bio?: string;
+  avatar_url?: string;
+  is_admin?: boolean;
+}
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -19,10 +27,26 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (!token) { router.replace('/login'); return; }
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
     fetch('http://localhost:8000/users/me', { headers: { Authorization: `Bearer ${token}` } })
-      .then(async (response) => { if (response.status === 401) { localStorage.removeItem('token'); router.replace('/login'); return; } if (!response.ok) throw new Error('Profile endpoint is unavailable'); return response.json(); })
-      .then((data) => { if (!data) return; setProfile(data); setName(data.name || data.full_name || ''); setBio(data.bio || ''); })
+      .then(async (response) => {
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          router.replace('/login');
+          return;
+        }
+        if (!response.ok) throw new Error('Profile endpoint is unavailable');
+        return response.json();
+      })
+      .then((data) => {
+        if (!data) return;
+        setProfile(data);
+        setName(data.name || data.full_name || '');
+        setBio(data.bio || '');
+      })
       .catch((error) => toast.error(error instanceof Error ? error.message : 'Could not load profile'))
       .finally(() => setLoading(false));
   }, [router]);
@@ -30,21 +54,161 @@ export default function ProfilePage() {
   const handleSave = async (event: FormEvent) => {
     event.preventDefault();
     const token = localStorage.getItem('token');
-    if (!token) { router.replace('/login'); return; }
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
     setSaving(true);
     try {
       const form = new FormData();
       form.append('name', name);
       form.append('bio', bio);
       if (avatar) form.append('avatar', avatar);
-      const response = await fetch('http://localhost:8000/users/me', { method: 'PUT', headers: { Authorization: `Bearer ${token}` }, body: form });
-      if (response.status === 401) { localStorage.removeItem('token'); router.replace('/login'); return; }
+
+      const response = await fetch('http://localhost:8000/users/me', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem('token');
+        router.replace('/login');
+        return;
+      }
       if (!response.ok) throw new Error('Could not save profile changes');
+
       setProfile(await response.json());
-      toast.success('Profile updated');
-    } catch (error) { toast.error(error instanceof Error ? error.message : 'Could not save profile'); } finally { setSaving(false); }
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not save profile');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  if (loading) return <div className="grid min-h-screen place-items-center bg-[#080812] text-[#9898ad]">Loading profile...</div>;
-  return <main className="min-h-screen bg-[radial-gradient(circle_at_85%_0,rgba(139,92,246,0.13),transparent_28%),#080812] text-[#f8f7ff]"><Toaster position="top-right" /><header className="mx-auto flex h-[82px] max-w-[1180px] items-center justify-between border-b border-white/10 px-7"><Link href="/dashboard" className="inline-flex items-center gap-2.5 text-[1.1rem] font-bold"><span className="grid h-[29px] w-[29px] place-items-center rounded-[9px] bg-[linear-gradient(135deg,#8b5cf6,#c084fc)] text-white">T</span><span>Taskflow</span></Link><div className="ml-auto flex items-center gap-[15px]"><ThemeControls /><Link href="/dashboard" className="rounded-[10px] border border-white/10 bg-white/[0.04] px-3.5 py-[9px] text-[0.78rem]">Back to dashboard</Link></div></header><section className="mx-auto max-w-[1180px] px-7 pb-[100px] pt-[15px] max-[800px]:px-[18px]"><div className="pb-[35px] pt-[65px]"><span className="text-[0.68rem] font-bold uppercase tracking-[0.16em] text-[#b49aff]">Your workspace identity</span><h1 className="my-[22px] mb-5 text-[clamp(2.7rem,5vw,4.5rem)] tracking-[-0.075em]">Make it <span className="text-[#8b5cf6]">yours.</span></h1><p className="max-w-[510px] text-[1.08rem] leading-[1.7] text-[#9898ad]">Keep your profile details current so your team knows who is moving work forward.</p></div><form className="max-w-[620px] rounded-2xl border border-white/10 bg-white/[0.04] p-[30px] backdrop-blur-[14px]" onSubmit={handleSave}><div className="mb-3.5 grid h-20 w-20 place-items-center overflow-hidden rounded-[24px] bg-[rgba(139,92,246,0.16)] text-[2rem] font-bold text-[#8b5cf6]">{profile?.avatar_url ? <img className="h-full w-full object-cover" src={profile.avatar_url} alt="" /> : (name || profile?.username || 'U').charAt(0).toUpperCase()}</div><label className="relative mb-[25px] inline-flex items-center justify-center rounded-[10px] border border-white/10 bg-white/[0.04] px-3.5 py-[9px] text-[0.78rem]">Change photo<input className="absolute inset-0 cursor-pointer opacity-0" type="file" accept="image/*" onChange={(event: ChangeEvent<HTMLInputElement>) => setAvatar(event.target.files?.[0] || null)} /></label><div className="grid grid-cols-2 gap-x-3.5 max-[800px]:grid-cols-1"><label className="mb-4 block text-[0.75rem] text-[#9898ad]">Username<input className="mt-[7px] block w-full rounded-[9px] border border-white/10 bg-white/[0.045] px-3.5 py-[13px] text-[#f8f7ff]" value={profile?.username || ''} readOnly /></label><label className="mb-4 block text-[0.75rem] text-[#9898ad]">Name<input className="mt-[7px] block w-full rounded-[9px] border border-white/10 bg-white/[0.045] px-3.5 py-[13px] text-[#f8f7ff]" value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" /></label><label className="mb-4 block text-[0.75rem] text-[#9898ad]">Email<input className="mt-[7px] block w-full rounded-[9px] border border-white/10 bg-white/[0.045] px-3.5 py-[13px] text-[#f8f7ff]" value={profile?.email || ''} readOnly /></label><label className="col-span-full mb-4 block text-[0.75rem] text-[#9898ad] max-[800px]:col-span-1">About you<textarea className="mt-[7px] block w-full rounded-[9px] border border-white/10 bg-white/[0.045] px-3.5 py-[13px] text-[#f8f7ff]" value={bio} onChange={(event) => setBio(event.target.value)} placeholder="A short introduction" rows={4} /></label></div><button className="mt-2 inline-flex items-center justify-center gap-2.5 rounded-[10px] bg-[linear-gradient(135deg,#8b5cf6,#6d28d9)] px-5 py-3 font-semibold text-white" disabled={saving}>{saving ? 'Saving...' : 'Save changes'} <span>→</span></button></form></section></main>;
+  if (loading) {
+    return (
+      <OrganizoLayout activeNav="profile">
+        <div className="grid h-96 place-items-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="h-7 w-7 animate-spin rounded-full border-2 border-[var(--text-main)] border-t-transparent" />
+            <span className="text-xs text-[var(--text-muted)]">Loading profile...</span>
+          </div>
+        </div>
+      </OrganizoLayout>
+    );
+  }
+
+  return (
+    <OrganizoLayout activeNav="profile">
+      <Toaster position="top-right" />
+
+      <div className="max-w-3xl space-y-6">
+        <div>
+          <span className="eyebrow">Settings</span>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text-main)]">
+            Account & Profile
+          </h1>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
+            Manage your personal identity, display name, and avatar.
+          </p>
+        </div>
+
+        <div className="organizo-card p-6 sm:p-8">
+          <form onSubmit={handleSave} className="space-y-6">
+            {/* Avatar header */}
+            <div className="flex flex-col sm:flex-row items-center gap-5">
+              <div className="h-20 w-20 rounded-2xl flex items-center justify-center bg-[var(--canvas-bg)] border border-[var(--card-border)] text-2xl font-bold text-[var(--text-main)] shadow-xs overflow-hidden">
+                {profile?.avatar_url ? (
+                  <img className="h-full w-full object-cover" src={profile.avatar_url} alt="" />
+                ) : (
+                  (name || profile?.username || 'U').charAt(0).toUpperCase()
+                )}
+              </div>
+              <div>
+                <label className="btn-ghost-mono text-xs cursor-pointer">
+                  <span>Change photo</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setAvatar(e.target.files?.[0] || null)}
+                    className="hidden"
+                  />
+                </label>
+                <div className="mt-1.5 text-[0.68rem] text-[var(--text-subtle)]">
+                  PNG, JPG or WebP up to 5MB.
+                </div>
+              </div>
+            </div>
+
+            {/* Form Fields */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-[var(--text-muted)]">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  value={profile?.username || ''}
+                  readOnly
+                  disabled
+                  className="search-pill text-xs py-2.5 rounded-xl opacity-60 cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-[var(--text-muted)]">
+                  Email
+                </label>
+                <input
+                  type="text"
+                  value={profile?.email || ''}
+                  readOnly
+                  disabled
+                  className="search-pill text-xs py-2.5 rounded-xl opacity-60 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-xs font-semibold text-[var(--text-muted)]">
+                  Full Display Name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your full name"
+                  className="search-pill text-xs py-2.5 rounded-xl"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-xs font-semibold text-[var(--text-muted)]">
+                  About You / Bio
+                </label>
+                <textarea
+                  rows={3}
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="A brief bio..."
+                  className="search-pill text-xs py-2.5 rounded-xl w-full"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4 border-t border-[var(--card-border)]">
+              <button
+                type="submit"
+                disabled={saving}
+                className="btn-primary-mono text-xs"
+              >
+                {saving ? 'Saving...' : 'Save Profile Changes'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </OrganizoLayout>
+  );
 }
