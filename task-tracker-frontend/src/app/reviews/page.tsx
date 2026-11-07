@@ -1,7 +1,63 @@
-import { LandingLayout, Reveal } from '@/components/LandingLayout';
+import { PublicLayout, Reveal } from '@/components/layout/PublicLayout';
 
-const reviews = [{ quote: 'Taskflow gave our team a shared language for progress. We spend less time asking for updates and more time shipping.', name: 'Maya Chen', role: 'Head of Product, Northstar' }, { quote: 'It is rare to find a tool that feels powerful and calm at the same time. Our planning meetings are half as long.', name: 'Jon Bell', role: 'Founder, Linear Labs' }, { quote: 'The visual clarity changed how we work. Everyone knows what matters today and why.', name: 'Ari Santos', role: 'Design Director, Commonplace' }];
+const testimonials = [
+  {
+    quote: 'The high-contrast black and white UI is so much easier on the eyes during late night coding sessions. It just works.',
+    name: 'Maya Chen',
+    role: 'VP of Product, Horizon Labs',
+    avatar: 'M',
+  },
+  {
+    quote: 'Being able to place tasks directly on the calendar and see what is due this week without endless color distractions made planning fun again.',
+    name: 'Jonah Vance',
+    role: 'Lead Architect, Stellar Works',
+    avatar: 'J',
+  },
+  {
+    quote: 'The dark and light theme switching is seamless. The text contrast is crisp, and the widget layout is exactly what our team needed.',
+    name: 'Ari Santos',
+    role: 'Design Director, Echo Systems',
+    avatar: 'A',
+  },
+];
 
 export default function ReviewsPage() {
-  return <LandingLayout eyebrow="Loved by focused teams" title={<>Don&apos;t take our word <span>for it.</span></>} description="A little proof from the people turning ambitious plans into meaningful progress."><section className="mx-auto grid max-w-[1180px] grid-cols-3 gap-[18px] px-7 py-[95px] max-[800px]:grid-cols-1 max-[800px]:py-[65px]">{reviews.map((review) => <Reveal key={review.name} className="flex min-h-[290px] flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-[27px] backdrop-blur-[16px]"><div className="text-[0.75rem] tracking-[3px] text-[#f5c96d]">★★★★★</div><blockquote className="my-[26px] mb-auto text-base leading-[1.7]">“{review.quote}”</blockquote><div className="flex items-center gap-2.5"><span className="grid h-[31px] w-[31px] place-items-center rounded-full bg-[rgba(139,92,246,0.16)] text-[0.75rem] text-[#8b5cf6]">{review.name.charAt(0)}</span><div><b className="block text-[0.75rem]">{review.name}</b><small className="block text-[0.65rem] text-[#9898ad]">{review.role}</small></div></div></Reveal>)}</section><section className="mx-auto flex max-w-[1180px] justify-around px-7 pb-[105px] pt-5 text-center"><div><strong className="block text-[2.5rem] tracking-[-0.06em]">2,000+</strong><span className="mt-[5px] block text-[0.75rem] text-[#9898ad]">teams in flow</span></div><div><strong className="block text-[2.5rem] tracking-[-0.06em]">98%</strong><span className="mt-[5px] block text-[0.75rem] text-[#9898ad]">would recommend</span></div><div><strong className="block text-[2.5rem] tracking-[-0.06em]">4.9/5</strong><span className="mt-[5px] block text-[0.75rem] text-[#9898ad]">average rating</span></div></section></LandingLayout>;
+  return (
+    <PublicLayout>
+      <div className="mx-auto max-w-6xl px-6 py-16 md:py-24">
+        <div className="text-center">
+          <span className="eyebrow">User Feedback</span>
+          <h1 className="mt-4 text-4xl font-extrabold sm:text-6xl text-[var(--text-main)]">
+            Trusted by teams that demand focus.
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-sm text-[var(--text-muted)]">
+            Read what developers and founders say about Organizo&apos;s clean monochrome workspace.
+          </p>
+        </div>
+
+        {/* Testimonials */}
+        <div className="mt-16 grid gap-6 md:grid-cols-3">
+          {testimonials.map((t, idx) => (
+            <Reveal key={idx}>
+              <div className="glass-card flex h-full flex-col justify-between p-8">
+                <blockquote className="text-xs leading-relaxed text-[var(--text-main)]">
+                  &ldquo;{t.quote}&rdquo;
+                </blockquote>
+
+                <div className="mt-6 flex items-center gap-3 border-t border-[var(--card-border)] pt-4">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] text-xs font-bold shadow-xs">
+                    {t.avatar}
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-[var(--text-main)]">{t.name}</div>
+                    <div className="text-[0.68rem] text-[var(--text-muted)]">{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </PublicLayout>
+  );
 }
