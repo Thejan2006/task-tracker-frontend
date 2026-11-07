@@ -2,16 +2,29 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { SiteHeader } from '@/components/SiteHeader';
-import { Reveal } from '@/components/LandingLayout';
-import { AuroraBackground } from '@/components/velora/aurora-background';
+import { motion } from 'framer-motion';
+import { PublicLayout, Reveal } from '@/components/layout/PublicLayout';
 
 const features = [
-  ['01', 'One calm workspace', 'Bring tasks, priorities, and progress into one focused view.'],
-  ['02', 'Momentum, measured', 'See what is moving and what needs your attention without the noise.'],
-  ['03', 'Made for humans', 'Thoughtful defaults help your team do its best work every day.'],
+  {
+    number: '01',
+    title: 'Integrated Monthly Calendar',
+    desc: 'Plan, view, and place tasks directly on calendar dates. Switch between timeline groups, kanban, and full-month views with a click.',
+    tag: 'Calendar'
+  },
+  {
+    number: '02',
+    title: 'High-Contrast Monochrome UI',
+    desc: 'Clean, distraction-free black and white aesthetic that looks sharp and stays 100% readable in both light and dark modes.',
+    tag: 'Minimalist'
+  },
+  {
+    number: '03',
+    title: 'Live Task Velocity Tracking',
+    desc: 'Keep track of real task execution duration with live timer widgets, clear completion states, and progress telemetry.',
+    tag: 'Velocity'
+  },
 ];
 
 export default function Home() {
@@ -19,42 +32,169 @@ export default function Home() {
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    if (localStorage.getItem('token')) router.replace('/dashboard');
-    else setCheckingAuth(false);
+    if (localStorage.getItem('token')) {
+      router.replace('/dashboard');
+    } else {
+      setCheckingAuth(false);
+    }
   }, [router]);
 
-  if (checkingAuth) return <div className="neon-page grid place-items-center text-[#9aa4c7]">Loading Taskflow...</div>;
+  if (checkingAuth) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-[var(--canvas-bg)] text-[var(--text-main)]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-7 w-7 animate-spin rounded-full border-2 border-[var(--text-main)] border-t-transparent" />
+          <span className="text-xs font-medium text-[var(--text-muted)]">Entering Organizo...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="neon-page  relative overflow-hidden ">
-      <motion.video autoPlay muted loop playsInline preload="metadata" className="fixed inset-0 z-0 h-screen w-screen object-cover opacity-[0.22] mix-blend-screen" aria-hidden="true" initial={{ scale: 1.08, x: -12, y: -4 }} animate={{ scale: [1.08, 1.15, 1.08], x: [-12, 10, -12], y: [-4, 8, -4] }} transition={{ duration: 18, ease: 'easeInOut', repeat: Infinity }}>
-        {/* Full-page ambient video: served directly from the public folder. */}
-        <source src="/124825-731960032.mp4" type="video/mp4" />
-      </motion.video>
-      <div className="home-video-overlay pointer-events-none fixed inset-0 z-[1] bg-[linear-gradient(115deg,rgba(5,8,23,.88),rgba(5,8,23,.6)_45%,rgba(5,8,23,.76))]" />
-      <AuroraBackground intensity="subtle" className="fixed z-[2]" />
-      <div className="relative z-10">
-      <SiteHeader />
-      <section className="relative mx-auto grid max-w-[1240px] grid-cols-[0.9fr_1.1fr] items-center gap-[60px] overflow-hidden px-7 py-24 pb-[120px] max-[800px]:grid-cols-1 max-[800px]:pt-[55px]">
-        <div className="relative z-10">
-          <span className="eyebrow">The operating system for momentum</span>
-          <h1 className="my-[22px] mb-5 max-w-[650px] text-[clamp(3.3rem,6vw,5.4rem)] leading-[0.98] tracking-[-0.075em] [&>span]:bg-[linear-gradient(90deg,#9b6cff,#27d7ff)] [&>span]:bg-clip-text [&>span]:text-transparent">Make progress <span>feel effortless.</span></h1>
-          <p className="max-w-[510px] text-[1.08rem] leading-[1.7] text-[#9898ad]">Taskflow gives ambitious teams a beautiful, focused space to plan clearly, collaborate deeply, and ship their best work.</p>
-          <div className="mt-[30px] flex items-center gap-6 max-[480px]:flex-col max-[480px]:items-stretch max-[480px]:gap-[17px]">
-            <Link href="/users/create" className="neon-button px-5 py-3 text-[0.88rem]">Start for free <span>→</span></Link>
-            <Link href="/login" className="text-[0.86rem] text-[#9898ad] transition-colors hover:text-[#f8f7ff]">Sign in <span>↗</span></Link>
+    <PublicLayout>
+      {/* ── HERO SECTION ───────────────────────────────────────── */}
+      <section className="relative mx-auto max-w-6xl px-6 pt-16 pb-24 md:pt-24 md:pb-32">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--card-border)] bg-[var(--card-bg)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-main)] shadow-xs">
+              <span className="flex h-2 w-2 rounded-full bg-[var(--text-main)] animate-pulse" />
+              Minimalist Black & White Task Tracker
+            </div>
+
+            <h1 className="mt-6 text-4xl font-extrabold tracking-tight sm:text-6xl text-[var(--text-main)] leading-[1.1]">
+              Order and execution, <br className="hidden sm:inline" />
+              pure and simple.
+            </h1>
+
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-[var(--text-muted)]">
+              Organizo gives teams a high-contrast, distraction-free space. Schedule tasks directly on an interactive calendar, track time, and keep your daily momentum focused.
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Link href="/users/create" className="btn-primary-mono text-sm px-6 py-3">
+                Get started free →
+              </Link>
+              <Link href="/login" className="btn-ghost-mono text-sm px-6 py-3">
+                Sign in to workspace
+              </Link>
+            </div>
+
+            <div className="mt-12 flex items-center gap-4 border-t border-[var(--card-border)] pt-8 text-xs text-[var(--text-muted)]">
+              <span className="font-bold text-[var(--text-main)]">3,500+ professionals</span>
+              <span>•</span>
+              <span>Zero clutter</span>
+              <span>•</span>
+              <span>Dark & light contrast guaranteed</span>
+            </div>
           </div>
-          <div className="mt-14 flex items-center gap-3 text-[0.76rem] text-[#9898ad]"><div className="flex pl-[9px] [&>i]:-ml-[9px] [&>i]:grid [&>i]:h-[27px] [&>i]:w-[27px] [&>i]:place-items-center [&>i]:rounded-full [&>i]:border-2 [&>i]:border-[#080812] [&>i]:text-[0.68rem] [&>i]:not-italic [&>i:first-child]:bg-[#ef8354] [&>i:nth-child(2)]:bg-[#4e8dd7] [&>i:nth-child(3)]:bg-[#a17edc] [&>i:nth-child(4)]:bg-[#15152a]"><i>A</i><i>M</i><i>J</i><i>+</i></div><span>Trusted by 2,000+ focused teams</span></div>
+
+          {/* ── MOCKUP PREVIEW ─────────────────────────────────────── */}
+          <motion.div
+            className="relative"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="glass-card p-6 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-[var(--card-border)] pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="h-6 w-6 rounded-lg bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] flex items-center justify-center text-xs font-bold">
+                    AZ
+                  </span>
+                  <span className="font-bold text-xs text-[var(--text-main)]">Organizo Calendar Preview</span>
+                </div>
+                <span className="pill-badge pill-medium text-[0.65rem]">Active Workspace</span>
+              </div>
+
+              {/* Sample Task Rows */}
+              <div className="space-y-2">
+                {[
+                  { title: 'System architecture review', stage: 'In progress', priority: 'High', date: 'March 15' },
+                  { title: 'Sprint backlog refinement', stage: 'In progress', priority: 'Medium', date: 'March 16' },
+                  { title: 'Dashboard component refactor', stage: 'To Do', priority: 'Low', date: 'March 18' },
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-3 rounded-xl bg-[var(--card-bg)] border border-[var(--card-border)] shadow-xs text-xs"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="h-4 w-4 rounded-full border border-[var(--card-border)] flex items-center justify-center text-[8px] font-bold">
+                        ✓
+                      </span>
+                      <span className="font-semibold text-[var(--text-main)]">{item.title}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="pill-badge pill-stage text-[0.65rem]">{item.stage}</span>
+                      <span className={`pill-badge ${item.priority === 'High' ? 'pill-high' : item.priority === 'Medium' ? 'pill-medium' : 'pill-low'} text-[0.65rem]`}>
+                        {item.priority}
+                      </span>
+                      <span className="text-[0.68rem] text-[var(--text-muted)]">{item.date}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Mini Calendar Snippet */}
+              <div className="p-3 rounded-xl bg-[var(--canvas-bg)] border border-[var(--card-border)] flex items-center justify-between text-xs">
+                <span className="font-semibold text-[var(--text-main)]">📅 Click any date to place your task</span>
+                <span className="pill-badge pill-high text-[0.65rem]">Calendar Ready</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
-        <motion.div className="relative z-10 grid min-h-[460px] place-items-center max-[800px]:min-h-[360px]" initial={{ opacity: 0, scale: .95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .7 }}>
-          <div className="absolute right-[8%] top-[6%] h-[230px] w-[230px] rounded-full bg-[rgba(139,92,246,0.23)] blur-[2px]" /><div className="absolute bottom-[2%] left-[3%] h-[170px] w-[170px] rounded-full bg-[rgba(6,182,212,0.18)] blur-[2px]" />
-          <div className="relative z-[1] w-full max-w-[530px] overflow-hidden rounded-[18px] border border-white/10 bg-[rgba(20,20,39,0.8)] shadow-[0_28px_90px_rgba(0,0,0,0.35),0_0_0_9px_rgba(255,255,255,0.025)] backdrop-blur-[18px] [transform:perspective(1000px)_rotateY(-5deg)_rotateX(3deg)]"><div className="flex justify-between border-b border-white/10 px-[18px] py-[15px] text-[0.68rem] text-[#9898ad]"><span className="text-[0.5rem] tracking-[3px] text-[#777]">● ● ●</span><span>My workspace</span><span>•••</span></div><div className="grid min-h-[330px] grid-cols-[125px_1fr] max-[480px]:grid-cols-[85px_1fr]"><div className="flex flex-col gap-[17px] border-r border-white/10 px-3.5 py-[22px] text-[0.67rem] text-[#77768e] max-[480px]:px-[9px] max-[480px]:py-[18px]"><b className="mb-1.5 text-[#f5f2ff]">Workspace</b><span className="rounded-md bg-[rgba(139,92,246,0.16)] px-2 py-[7px] text-white">Overview</span><span>My tasks</span><span>Projects</span><span>Insights</span></div><div className="px-[27px] py-[34px] max-[480px]:px-[15px] max-[480px]:py-6"><small className="text-[0.53rem] tracking-[0.12em] text-[#818097]">MONDAY, SEPTEMBER 14</small><h3 className="my-[13px] mb-[5px] text-[1.3rem] tracking-[-0.04em]">Good morning, Alex <span className="text-[#f5c96d]">✦</span></h3><p className="text-[0.7rem] text-[#818097]">Here&apos;s what&apos;s moving today.</p><div className="my-[26px] mb-3 grid grid-cols-2 gap-2.5 [&>div]:rounded-[9px] [&>div]:border [&>div]:border-white/10 [&>div]:bg-white/[0.035] [&>div]:p-[15px]"><div><strong className="block text-[1.45rem]">12</strong><span className="mt-[5px] block text-[0.62rem] text-[#818097]">In progress</span></div><div><strong className="block text-[1.45rem]">84%</strong><span className="mt-[5px] block text-[0.62rem] text-[#818097]">On track</span></div></div><div className="grid grid-cols-[1fr_auto] gap-[5px] rounded-[9px] border border-white/10 bg-white/[0.035] p-[15px]"><span className="mt-[5px] block text-[0.62rem] text-[#818097]">This week&apos;s focus</span><b className="text-[0.72rem]">84%</b><div className="col-span-full mt-2 h-[5px] rounded-[5px] bg-[#303047]"><i className="block h-full w-[84%] rounded-[inherit] bg-[#8b5cf6]" /></div></div></div></div></div>
-        </motion.div>
       </section>
-      <section className="mx-auto max-w-[1180px] px-7 py-[95px] max-[800px]:py-[65px]"><Reveal><span className="eyebrow">Less managing. More making.</span><h2 className="my-[18px] mb-[50px] text-[clamp(2.4rem,4vw,4rem)] leading-[1.05] tracking-[-0.065em]">Everything your team needs<br /><span className="bg-[linear-gradient(90deg,#9b6cff,#27d7ff)] bg-clip-text text-transparent">to move as one.</span></h2></Reveal><div className="grid grid-cols-3 gap-[18px] max-[800px]:grid-cols-1">{features.map(([number, title, text]) => <Reveal key={number} className="glass-panel relative min-h-[250px] rounded-2xl p-[27px] transition hover:-translate-y-1.5"><span className="eyebrow">{number}</span><h3 className="my-[45px] mb-2.5 text-[1.15rem]">{title}</h3><p className="text-[0.85rem] leading-[1.7] text-[#9aa4c7]">{text}</p><span className="absolute right-[25px] top-[25px] text-neon-cyan">↗</span></Reveal>)}</div></section>
-      <section className="mx-auto mb-[90px] mt-[30px] max-w-[1180px] rounded-[22px] border border-white/10 bg-[radial-gradient(circle_at_50%_0,rgba(139,92,246,0.2),transparent_55%)] px-[30px] py-20 text-center"><Reveal><h2 className="mb-5 text-[clamp(2.4rem,4vw,4rem)] leading-[1.05] tracking-[-0.065em]">Ready to find your flow?</h2><p className="mb-7 text-[#9898ad]">Join thousands of teams building their next big thing with less friction.</p><Link href="/users/create" className="inline-flex items-center justify-center gap-2.5 rounded-[10px] bg-[linear-gradient(135deg,#8b5cf6,#6d28d9)] px-5 py-3 text-[0.88rem] font-semibold text-white shadow-[0_8px_25px_rgba(139,92,246,0.25)] transition hover:-translate-y-0.5">Get started free <span>→</span></Link></Reveal></section>
-      <footer className="mx-auto flex max-w-[1180px] items-end justify-between px-7 pb-10 text-[0.75rem] text-[#9898ad] max-[800px]:items-start max-[800px]:flex-col max-[800px]:gap-6"><div><Link href="/" className="inline-flex items-center gap-2.5 text-[1.1rem] font-bold tracking-[-0.03em] text-[#f8f7ff]"><span className="grid h-[29px] w-[29px] place-items-center rounded-[9px] bg-[linear-gradient(135deg,#8b5cf6,#c084fc)] text-white shadow-[0_0_22px_rgba(139,92,246,0.45)]">T</span><span>Taskflow</span></Link><p>Make space for the work that matters.</p></div><span>© 2026 Taskflow. Built for focused teams.</span></footer>
-      </div>
-    </div>
+
+      {/* ── FEATURES SECTION ───────────────────────────────────── */}
+      <section className="relative mx-auto max-w-6xl px-6 py-16">
+        <Reveal className="text-center">
+          <span className="eyebrow">Simplicity by Design</span>
+          <h2 className="mt-3 text-3xl font-extrabold sm:text-5xl text-[var(--text-main)]">
+            Focused features, no visual noise
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-sm text-[var(--text-muted)]">
+            A balanced interface engineered with high-contrast monochrome design and integrated monthly calendar scheduling.
+          </p>
+        </Reveal>
+
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {features.map((f, i) => (
+            <Reveal key={i}>
+              <div className="glass-card flex h-full flex-col justify-between p-8">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-bold text-[var(--text-muted)]">{f.number}</span>
+                    <span className="pill-badge pill-medium">{f.tag}</span>
+                  </div>
+                  <h3 className="mt-6 text-base font-bold text-[var(--text-main)]">{f.title}</h3>
+                  <p className="mt-3 text-xs leading-relaxed text-[var(--text-muted)]">{f.desc}</p>
+                </div>
+                <div className="mt-6 flex items-center gap-1 text-xs font-semibold text-[var(--text-main)]">
+                  <span>Explore feature →</span>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ── BOTTOM CTA ─────────────────────────────────────────── */}
+      <section className="relative mx-auto max-w-6xl px-6 py-20">
+        <Reveal>
+          <div className="glass-card p-10 text-center sm:p-16 border border-[var(--card-border)]">
+            <h2 className="text-3xl font-extrabold sm:text-5xl text-[var(--text-main)]">
+              Bring clarity to your tasks today.
+            </h2>
+            <p className="mx-auto mt-4 max-w-lg text-xs sm:text-sm text-[var(--text-muted)]">
+              Sign up in seconds and experience calm, high-contrast task tracking.
+            </p>
+            <div className="mt-8 flex justify-center">
+              <Link href="/users/create" className="btn-primary-mono px-8 py-3.5 text-sm">
+                Create Free Workspace →
+              </Link>
+            </div>
+          </div>
+        </Reveal>
+      </section>
+    </PublicLayout>
   );
 }
