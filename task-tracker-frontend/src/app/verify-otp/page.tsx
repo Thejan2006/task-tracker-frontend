@@ -82,7 +82,7 @@ export default function VerifyOtpPage() {
       if (!response.ok) {
         throw new Error(messageFromPayload(payload, 'We could not resend the code.'));
       }
-      setNotice('A new verification code is on its way.');
+      setNotice('A fresh verification code was sent to your inbox.');
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to resend the code.');
     } finally {
@@ -91,58 +91,87 @@ export default function VerifyOtpPage() {
   };
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#080812] px-4 py-10 text-[#f8f7ff]">
-      <motion.video autoPlay muted loop playsInline preload="metadata" className="fixed inset-0 z-0 h-screen w-screen object-cover opacity-[0.22] mix-blend-screen" aria-hidden="true" initial={{ scale: 1.08, x: -12, y: -4 }} animate={{ scale: [1.08, 1.15, 1.08], x: [-12, 10, -12], y: [-4, 8, -4] }} transition={{ duration: 18, ease: 'easeInOut', repeat: Infinity }}>
-        {/* Full-page ambient video: served directly from the public folder. */}
-        <source src="/124825-731960032.mp4" type="video/mp4" />
-      </motion.video>
-      <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-violet-500/20 blur-3xl" />
-      <div className="absolute -bottom-32 -right-20 h-96 w-96 rounded-full bg-cyan-500/15 blur-3xl" />
-      <section className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.06] p-7 shadow-2xl shadow-black/30 backdrop-blur-2xl sm:p-10">
-        <Link href="/" className="inline-flex items-center gap-2.5 text-lg font-bold tracking-tight">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-violet-400 to-violet-700 shadow-lg shadow-violet-500/30">T</span>
-          Taskflow
+    <main className="glass-page flex min-h-screen items-center justify-center p-4 sm:p-6 text-[var(--text-main)]">
+      <motion.div
+        className="glass-card relative z-10 w-full max-w-md p-8 sm:p-10 shadow-2xl"
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+      >
+        <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-[var(--text-main)]">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] font-extrabold text-xs">
+            AZ
+          </span>
+          Organizo
         </Link>
-        <div className="mt-12">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">Almost there</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight">Verify your email</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-400">
-            Enter the code we sent to <span className="font-medium text-slate-200">{email || 'your email address'}</span>.
+
+        <div className="mt-8">
+          <span className="eyebrow">Verification</span>
+          <h1 className="mt-2 text-2xl font-bold tracking-tight text-[var(--text-main)]">Check your inbox</h1>
+          <p className="mt-1 text-xs leading-relaxed text-[var(--text-muted)]">
+            We sent a verification code to <span className="font-semibold text-[var(--text-main)]">{email || 'your email'}</span>.
           </p>
         </div>
-        {error && <div role="alert" className="mt-6 rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-sm text-red-200">{error}</div>}
-        {notice && <div role="status" className="mt-6 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-200">{notice}</div>}
-        <form onSubmit={handleVerify} className="mt-7 space-y-5">
-          <label htmlFor="otp" className="block text-sm font-medium text-slate-300">
-            Verification code
+
+        {error && (
+          <div className="mt-5 rounded-2xl border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-600 dark:text-red-400">
+            {error}
+          </div>
+        )}
+
+        {notice && (
+          <div className="mt-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-600 dark:text-emerald-400">
+            {notice}
+          </div>
+        )}
+
+        <form onSubmit={handleVerify} className="mt-6 space-y-4">
+          <div>
+            <label htmlFor="otp" className="mb-1.5 block text-xs font-semibold text-[var(--text-muted)]">
+              Verification Code
+            </label>
             <input
               ref={firstInput}
               id="otp"
               name="otp"
               inputMode="numeric"
               autoComplete="one-time-code"
-              pattern="[0-9]{4,8}"
               maxLength={8}
               required
               value={code}
-              onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))}
-              placeholder="Enter your code"
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              placeholder="123456"
               disabled={isSubmitting}
-              className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-4 text-center text-2xl font-semibold tracking-[0.45em] text-white outline-none transition placeholder:text-base placeholder:font-normal placeholder:tracking-normal focus:border-violet-400 focus:ring-4 focus:ring-violet-500/15 disabled:opacity-60"
+              className="search-pill text-center font-mono text-2xl tracking-[0.25em] font-bold py-3 rounded-2xl"
             />
-          </label>
-          <button type="submit" disabled={isSubmitting || !email} className="w-full rounded-xl bg-gradient-to-r from-violet-500 to-violet-700 px-4 py-3.5 font-semibold text-white shadow-lg shadow-violet-600/20 transition hover:-translate-y-0.5 hover:shadow-violet-600/30 disabled:cursor-not-allowed disabled:opacity-50">
-            {isSubmitting ? 'Verifying...' : 'Verify email'}
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting || !email}
+            className="btn-primary-mono w-full justify-center py-2.5 text-xs"
+          >
+            {isSubmitting ? 'Verifying...' : 'Confirm Code & Enter →'}
           </button>
         </form>
-        <p className="mt-6 text-center text-sm text-slate-400">
-          Didn&apos;t receive it?{' '}
-          <button type="button" onClick={handleResend} disabled={isResending || !email} className="font-semibold text-violet-300 hover:text-violet-200 disabled:opacity-50">
-            {isResending ? 'Sending...' : 'Resend code'}
-          </button>
-        </p>
-        <Link href="/users/create" className="mt-5 block text-center text-sm text-slate-500 transition hover:text-slate-300">Use a different email</Link>
-      </section>
+
+        <div className="mt-6 flex flex-col items-center gap-2 text-xs text-[var(--text-muted)]">
+          <div>
+            Didn&apos;t get the code?{' '}
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={isResending || !email}
+              className="font-semibold text-[var(--text-main)] hover:underline disabled:opacity-50"
+            >
+              {isResending ? 'Sending...' : 'Resend code'}
+            </button>
+          </div>
+          <Link href="/users/create" className="text-[var(--text-subtle)] hover:text-[var(--text-main)]">
+            Use a different email address
+          </Link>
+        </div>
+      </motion.div>
     </main>
   );
 }
